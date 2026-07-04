@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustFundBD — ব্লকচেইন সংযোগ গাইড (বাংলা)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Manrope:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:#006d37; --primary-light:#2ecc71; --primary-pale:#d0e9d2;
+    --bg:#f9f9f7; --surface:#ffffff; --surface-alt:#f4f4f2;
+    --text:#1a1c1b; --text-muted:#5f5e5e; --text-faint:#93928c;
+    --border:#e8e8e6; --border-strong:#d3d1c7;
+    --warning-bg:#fdf1de; --warning-text:#8a5a0b;
+    --danger-bg:#ffdad6; --danger-text:#93000a;
+    --chain:#534ab7; --chain-bg:#eeedfe; --chain-border:#cecbf6;
+    --gold:#ba7517; --gold-bg:#faeeda; --gold-border:#fac775;
+    --radius:14px; --shadow:0 10px 28px rgba(26,28,27,0.07);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Noto Sans Bengali','Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.85; display:flex; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; line-height:1; }
+  code, .mono { font-family:'JetBrains Mono',monospace; direction:ltr; unicode-bidi:embed; }
+
+  .sidebar { width:250px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface); border-left:1px solid var(--border); padding:2rem 1.25rem; }
+  .sidebar .brand { display:flex; align-items:center; gap:.5rem; margin-bottom:2rem; font-family:'Manrope',sans-serif; font-weight:800; font-size:16px; }
+  .sidebar .brand .mark { width:30px; height:30px; border-radius:8px; background:var(--chain); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .sidebar nav a { display:block; padding:.55rem .6rem; border-radius:8px; color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:600; margin-bottom:2px; }
+  .sidebar nav a:hover { background:var(--surface-alt); color:var(--text); }
+
+  .content { flex:1; min-width:0; }
+  .wrap { max-width:920px; margin:0 auto; padding:3rem 2rem 6rem; }
+
+  .hero { background:linear-gradient(135deg,var(--chain),#7f77dd); color:#fff; border-radius:var(--radius); padding:3rem 2.5rem; margin-bottom:3.5rem; position:relative; overflow:hidden; }
+  .hero::after { content:"link"; font-family:'Material Symbols Outlined'; position:absolute; left:-20px; top:-30px; font-size:220px; opacity:.1; }
+  .hero .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:.06em; margin-bottom:.75rem; opacity:.9; }
+  .hero h1 { font-size:2.1rem; margin:0 0 .8rem; line-height:1.35; font-family:'Noto Sans Bengali',sans-serif; font-weight:800; }
+  .hero p { max-width:640px; opacity:.95; margin:0; font-size:16px; }
+  .badges { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.5rem; }
+  .badge { background:rgba(255,255,255,.16); padding:.4rem .9rem; border-radius:999px; font-size:13px; font-weight:600; }
+
+  section { margin-bottom:3.5rem; scroll-margin-top:2rem; }
+  section > .kicker { display:flex; align-items:center; gap:.6rem; font-size:12.5px; font-weight:700; letter-spacing:.04em; color:var(--chain); margin-bottom:.6rem; }
+  section h2 { font-family:'Noto Sans Bengali',sans-serif; font-weight:800; font-size:1.6rem; margin:0 0 .6rem; }
+  section > p.lead { color:var(--text-muted); max-width:760px; margin:0 0 1.5rem; font-size:15.5px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .pad { padding:1.5rem; }
+
+  .callout { display:flex; gap:.7rem; align-items:flex-start; border-radius:10px; padding:1rem 1.15rem; font-size:14.5px; margin-bottom:1rem; }
+  .callout .material-symbols-outlined { flex-shrink:0; font-size:20px; margin-top:2px; }
+  .callout.warn { background:var(--warning-bg); color:var(--warning-text); }
+  .callout.danger { background:var(--danger-bg); color:var(--danger-text); }
+  .callout.info { background:var(--chain-bg); color:#453f8f; }
+  .callout.ok { background:var(--primary-pale); color:#005027; }
+  .callout.gold { background:var(--gold-bg); color:var(--gold); }
+
+  .analogy-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.9rem; }
+  .analogy-card { border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.2rem; }
+  .analogy-card .term { font-weight:700; font-size:15px; display:flex; align-items:center; gap:.4rem; margin-bottom:.4rem; }
+  .analogy-card .term .material-symbols-outlined { font-size:18px; color:var(--chain); }
+  .analogy-card .plain { font-size:14px; color:var(--text-muted); }
+
+  .diagram-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.5rem; overflow-x:auto; }
+  .diagram-wrap svg { display:block; margin:0 auto; min-width:640px; }
+  .diagram-caption { text-align:center; font-size:13px; color:var(--text-faint); margin-top:.8rem; }
+
+  .checklist { padding:1.5rem; }
+  .check-item { display:flex; gap:.9rem; padding:1rem 0; border-top:1px solid var(--border); }
+  .check-item:first-child { border-top:none; }
+  .check-item .box { width:24px; height:24px; border-radius:6px; border:2px solid var(--border-strong); flex-shrink:0; margin-top:2px; }
+  .check-item .t { font-weight:700; font-size:15.5px; }
+  .check-item .d { font-size:14px; color:var(--text-muted); margin-top:3px; }
+
+  .timeline { padding:.5rem 1.5rem 1.5rem; }
+  .tl-item { display:grid; grid-template-columns:30px 1fr; column-gap:1rem; }
+  .tl-rail { display:flex; flex-direction:column; align-items:center; }
+  .tl-dot { width:24px; height:24px; border-radius:50%; background:var(--surface); border:2.5px solid var(--border-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text-faint); }
+  .tl-item.now .tl-dot { background:var(--chain); border-color:var(--chain); color:#fff; }
+  .tl-line { width:2px; flex:1; background:var(--border); min-height:20px; }
+  .tl-item:last-child .tl-line { display:none; }
+  .tl-content { padding-bottom:1.4rem; }
+  .tl-content .title { font-weight:700; font-size:15.5px; }
+  .tl-content .detail { font-size:14px; color:var(--text-muted); margin-top:3px; }
+
+  .steps-num { padding:1.5rem; }
+  .step-row { display:flex; gap:1rem; padding:1rem 0; border-top:1px solid var(--border); align-items:flex-start; }
+  .step-row:first-child { border-top:none; }
+  .step-num { width:30px; height:30px; border-radius:50%; background:var(--chain-bg); color:var(--chain); font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-row .t { font-weight:700; font-size:15px; }
+  .step-row .d { font-size:14px; color:var(--text-muted); margin-top:2px; }
+
+  .codebox { background:#16181a; color:#d9e4dc; border-radius:10px; padding:1.1rem 1.3rem; font-size:12.6px; line-height:1.7; overflow-x:auto; direction:ltr; text-align:left; font-family:'JetBrains Mono',monospace; }
+  .codebox .c1{color:#7fd99f;} .codebox .c2{color:#f0c674;} .codebox .c3{color:#8ab4f8;} .codebox .cm{color:#7a7f7c;} .codebox .c4{color:#e0a5d8;}
+
+  table.netw { width:100%; border-collapse:collapse; font-size:14px; }
+  table.netw th { text-align:right; font-size:12px; color:var(--text-faint); padding:.7rem .9rem; border-bottom:1px solid var(--border); }
+  table.netw td { padding:.85rem .9rem; border-bottom:1px solid var(--border); vertical-align:top; text-align:right; }
+  table.netw tr:last-child td { border-bottom:none; }
+
+  .glossary dt { font-weight:700; font-size:15px; margin-top:1.1rem; }
+  .glossary dt:first-child { margin-top:0; }
+  .glossary dd { margin:.25rem 0 0; font-size:14px; color:var(--text-muted); }
+
+  footer { text-align:center; color:var(--text-faint); font-size:13px; padding-top:2rem; border-top:1px solid var(--border); }
+
+  @media (max-width:860px){ .sidebar{display:none;} .wrap{padding:2rem 1.25rem 4rem;} .hero{padding:2rem 1.5rem;} }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand"><div class="mark"><span class="material-symbols-outlined" style="font-size:17px;">link</span></div>ব্লকচেইন গাইড</div>
+  <nav>
+    <a href="#overview">ভূমিকা</a>
+    <a href="#basics">সহজ ভাষায় ব্লকচেইন</a>
+    <a href="#architecture">সিস্টেম ডায়াগ্রাম</a>
+    <a href="#sandbox">Ethereum Sandbox</a>
+    <a href="#flow">অনুমোদনের প্রবাহ</a>
+    <a href="#needed">যা যা লাগবে</a>
+    <a href="#security">নিরাপত্তা নিয়ম</a>
+    <a href="#contract">স্মার্ট কন্ট্রাক্ট</a>
+    <a href="#pyside">পাইথন কোড পরিবর্তন</a>
+    <a href="#rollout">ধাপে ধাপে পরিকল্পনা</a>
+    <a href="#costs">খরচ</a>
+    <a href="#glossary">শব্দকোষ</a>
+  </nav>
+</aside>
+
+<div class="content"><div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">TrustFundBD · ব্লকচেইন সংযোগ গাইড</div>
+    <h1>TrustFundBD-কে সত্যিকারের ব্লকচেইনের সাথে যুক্ত করা</h1>
+    <p>এই গাইডটি সম্পূর্ণ বাংলায়, একদম শুরু থেকে বোঝানো হয়েছে — আপনার আগে কোনো ব্লকচেইন
+    অভিজ্ঞতা না থাকলেও পড়ে বুঝতে পারবেন। আমরা <strong>Ethereum Sandbox (Sepolia টেস্টনেট)</strong>
+    ব্যবহার করব, যেখানে সব কিছু আসল Ethereum নেটওয়ার্কের মতোই কাজ করে — কিন্তু টাকা পুরোপুরি
+    নকল (ফ্রি), তাই শেখা ও পরীক্ষা করা সম্পূর্ণ নিরাপদ।</p>
+    <div class="badges">
+      <span class="badge">Ethereum Sepolia (Sandbox)</span>
+      <span class="badge">Solidity</span>
+      <span class="badge">web3.py</span>
+      <span class="badge">সম্পূর্ণ স্বচ্ছতা</span>
+    </div>
+  </div>
+
+  <section id="overview">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">info</span> ভূমিকা</div>
+    <h2>আসল "স্বচ্ছতা" বলতে আসলে কী বোঝায়</h2>
+    <p class="lead">
+      এখন <code>ledger.py</code> ফাইলটি প্রতিটি অনুমোদনের (approval) তথ্য একটা লোকাল
+      <code>chain_ledger.json</code> ফাইলে লিখে রাখে — এটা শুধু আপনার সার্ভারেই থাকে, বাইরের
+      কেউ দেখতে পায় না। "আসল স্বচ্ছতা" মানে হলো, এই একই তথ্যগুলো একটা <strong>পাবলিক
+      ব্লকচেইনে</strong> লিখে রাখা, যাতে যে কেউ — দাতা, ক্রিয়েটর, বা বাইরের যে কেউ — সেই
+      লেনদেন খুঁজে বের করে দেখতে পারেন ঠিক কত টাকা, কখন, কোন ক্যাম্পেইনের জন্য অনুমোদিত
+      হয়েছে। একবার লেখা হয়ে গেলে সেটা আর কেউ — এমনকি আপনি নিজেও — মুছতে বা বদলাতে পারবেন না।
+    </p>
+    <div class="callout info">
+      <span class="material-symbols-outlined">lightbulb</span>
+      <div>এই কাজটা দুই ভাগে হবে: (১) একটা ছোট <strong>Solidity স্মার্ট কন্ট্রাক্ট</strong> Sandbox
+      নেটওয়ার্কে বসানো, এবং (২) <code>ledger.py</code>-এর <code>record_event()</code> ফাংশনটাকে
+      ফাইলে লেখার বদলে <strong>web3.py</strong> দিয়ে ব্লকচেইনে লেখার মতো করে বদলানো। বাকি সব
+      কিছু — রুট, টেমপ্লেট, ট্রাস্ট স্কোর — একদম আগের মতোই থাকবে। <strong>এখনই কিছু তৈরি করা
+      হচ্ছে না</strong> — এটা শুধু পুরো পরিকল্পনা বোঝানোর জন্য।</div>
+    </div>
+  </section>
+
+  <section id="basics">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">school</span> প্রথমে এটা বুঝে নিন</div>
+    <h2>সহজ বাংলায়: ব্লকচেইন কী</h2>
+    <p class="lead">নিচের পাঁচটা ধারণা বুঝলে এই পুরো গাইডের বাকি অংশ বুঝতে সমস্যা হবে না।</p>
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">menu_book</span>ব্লকচেইন</div>
+        <div class="plain">একটা ভাগাভাগি করা খাতা, যার একই কপি হাজার হাজার কম্পিউটার নিজের কাছে রাখে। যে কেউ পড়তে পারে। একবার কোনো পাতা লেখা হয়ে গেলে সেটা আর কেউ ছিঁড়তে বা বদলাতে পারে না।</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">key</span>ওয়ালেট (Wallet)</div>
+        <div class="plain">সেই খাতার জন্য আপনার ব্যক্তিগত চাবির গোছা। এটা প্রমাণ করে "এই লেখাটা আমি লিখেছি" — কোনো ইউজারনেম-পাসওয়ার্ড না, শুধু একটা গোপন চাবি, যেটা কেবল আপনার কাছে থাকে।</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">memory</span>স্মার্ট কন্ট্রাক্ট</div>
+        <div class="plain">খাতার একটা পাতায় লেখা ছোট্ট একটা প্রোগ্রাম। একবার লেখা হয়ে গেলে এটা ঠিক লেখা অনুযায়ীই চলবে, চিরদিন — কেউ চুপিচুপি এর নিয়ম বদলাতে পারবে না।</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">local_gas_station</span>গ্যাস ফি (Gas)</div>
+        <div class="plain">খাতায় নতুন কিছু লেখার জন্য একটা ছোট্ট ফি, নেটওয়ার্কের নিজস্ব মুদ্রায় দিতে হয়। সহজ এন্ট্রির জন্য এটা এক সেন্টের ভগ্নাংশ থেকে কয়েক ডলার পর্যন্ত হতে পারে।</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">science</span>Sandbox / Testnet</div>
+        <div class="plain">খাতার একটা প্র্যাকটিস কপি, যেখানে নকল (ফ্রি) টাকা ব্যবহার হয়। শেখা এবং টেস্ট করার জন্য একদম পারফেক্ট — এখানে ভুল করলেও কোনো ক্ষতি নেই।</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">travel_explore</span>Block Explorer</div>
+        <div class="plain">একটা ওয়েবসাইট (যেমন Etherscan) যেখানে যে কেউ, বিনামূল্যে, ব্লকচেইনের যেকোনো লেনদেন সার্চ করে দেখতে পারে। এটাই "স্বচ্ছতা"-র আসল প্রমাণ।</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="architecture">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">schema</span> ডায়াগ্রাম ১</div>
+    <h2>পুরো সিস্টেমটা কীভাবে একসাথে কাজ করবে</h2>
+    <p class="lead">TrustFundBD অ্যাপ থেকে শুরু করে Ethereum Sandbox পর্যন্ত ডেটা কীভাবে যাবে, তার সম্পূর্ণ চিত্র।</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 900 430" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Bengali, sans-serif">
+  <defs>
+    <marker id="arrow1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#93928c"/></marker>
+  </defs>
+
+  <!-- Row 1: App side -->
+  <rect x="30" y="30" width="170" height="70" rx="12" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
+  <text x="115" y="58" text-anchor="middle" font-size="14" font-weight="700" fill="#005027">দাতা / এডমিন</text>
+  <text x="115" y="78" text-anchor="middle" font-size="12" fill="#3d6b4c">(ব্রাউজার)</text>
+
+  <rect x="250" y="30" width="170" height="70" rx="12" fill="#ffffff" stroke="#d3d1c7" stroke-width="1.5"/>
+  <text x="335" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1c1b">Flask অ্যাপ</text>
+  <text x="335" y="70" text-anchor="middle" font-size="11.5" fill="#5f5e5e" font-family="JetBrains Mono, monospace">app.py</text>
+  <text x="335" y="86" text-anchor="middle" font-size="11" fill="#93928c">(অনুমোদন করলে)</text>
+
+  <rect x="470" y="30" width="170" height="70" rx="12" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
+  <text x="555" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#453f8f">লেজার ফাইল</text>
+  <text x="555" y="70" text-anchor="middle" font-size="11.5" fill="#534ab7" font-family="JetBrains Mono, monospace">ledger.py</text>
+  <text x="555" y="86" text-anchor="middle" font-size="11" fill="#7b76b3">record_event()</text>
+
+  <rect x="690" y="30" width="180" height="70" rx="12" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
+  <text x="780" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#453f8f">web3.py সংযোগ</text>
+  <text x="780" y="70" text-anchor="middle" font-size="11" fill="#534ab7">পাইথন থেকে চেইনে</text>
+  <text x="780" y="86" text-anchor="middle" font-size="11" fill="#7b76b3">লেনদেন পাঠায়</text>
+
+  <line x1="200" y1="65" x2="248" y2="65" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <line x1="420" y1="65" x2="468" y2="65" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <line x1="640" y1="65" x2="688" y2="65" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+  <!-- vertical arrow down -->
+  <line x1="780" y1="100" x2="780" y2="150" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+  <!-- Row 2: infra -->
+  <rect x="600" y="150" width="220" height="70" rx="12" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
+  <text x="710" y="176" text-anchor="middle" font-size="13" font-weight="700" fill="#8a5a0b">RPC প্রোভাইডার</text>
+  <text x="710" y="194" text-anchor="middle" font-size="11.5" fill="#ba7517">Alchemy / Infura</text>
+  <text x="710" y="210" text-anchor="middle" font-size="10.5" fill="#a67a34">(ইন্টারনেট গেটওয়ে)</text>
+
+  <line x1="710" y1="220" x2="710" y2="270" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+  <!-- Row 3: blockchain network -->
+  <rect x="480" y="270" width="340" height="90" rx="14" fill="#ffffff" stroke="#534ab7" stroke-width="2"/>
+  <text x="650" y="298" text-anchor="middle" font-size="14.5" font-weight="800" fill="#453f8f">Ethereum Sepolia — Sandbox</text>
+  <text x="650" y="320" text-anchor="middle" font-size="12" fill="#5f5e5e">TrustFundLedger স্মার্ট কন্ট্রাক্ট</text>
+  <text x="650" y="340" text-anchor="middle" font-size="11" fill="#93928c">(নকল/ফ্রি টেস্ট মুদ্রা ব্যবহার করে)</text>
+
+  <line x1="480" y1="315" x2="330" y2="315" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+
+  <!-- Row 3 left: Explorer -->
+  <rect x="60" y="270" width="270" height="90" rx="14" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
+  <text x="195" y="298" text-anchor="middle" font-size="13.5" font-weight="700" fill="#005027">Sepolia Etherscan</text>
+  <text x="195" y="320" text-anchor="middle" font-size="12" fill="#2f6b45">(পাবলিক ব্লক এক্সপ্লোরার)</text>
+  <text x="195" y="340" text-anchor="middle" font-size="11" fill="#4c8461">যে কেউ, বিনামূল্যে দেখতে পারে</text>
+
+  <line x1="195" y1="270" x2="115" y2="102" stroke="#93928c" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow1)"/>
+
+  <text x="450" y="405" text-anchor="middle" font-size="11.5" fill="#93928c">ড্যাশড লাইন = দাতা নিজেই লেনদেন যাচাই করে দেখতে পারেন (স্বচ্ছতা)</text>
+</svg>
+      <div class="diagram-caption">চিত্র ১: অনুমোদন করার পর তথ্য কীভাবে অ্যাপ থেকে ব্লকচেইনে পৌঁছায় এবং পাবলিকলি দেখা যায়</div>
+    </div>
+  </section>
+
+  <section id="sandbox">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">science</span> আপনার নেওয়া সিদ্ধান্ত</div>
+    <h2>Ethereum Sandbox (Sepolia Testnet) কেন এবং কী</h2>
+    <p class="lead">আপনি বলেছেন আমরা Ethereum Sandbox ব্যবহার করব — এটাই সঠিক সিদ্ধান্ত, বিশেষত শেখার জন্য। নিচে বিস্তারিত।</p>
+    <div class="callout gold">
+      <span class="material-symbols-outlined">school</span>
+      <div><strong>Sandbox আসলে কী?</strong> "Sepolia" হলো Ethereum-এর নিজস্ব প্র্যাকটিস নেটওয়ার্ক (একে
+      Testnet-ও বলে)। এটা আসল Ethereum মেইননেটের সাথে ১০০% একই রকম কাজ করে — একই ওয়ালেট
+      (MetaMask), একই ভাষা (Solidity), একই কোড — শুধু এখানকার মুদ্রার কোনো আসল দাম নেই।
+      অর্থাৎ এখানে যা শিখবেন, তা আসল Ethereum নেটওয়ার্কেও পুরোপুরি কাজে লাগবে।</div>
+    </div>
+    <div class="card pad">
+      <table class="netw">
+        <tr><th>বিষয়</th><th>Sepolia (Sandbox)</th><th>Ethereum Mainnet (আসল)</th></tr>
+        <tr><td>টাকা কি আসল?</td><td>না, ফ্রি টেস্ট মুদ্রা</td><td>হ্যাঁ, আসল টাকা</td></tr>
+        <tr><td>প্রতি লেনদেনের খরচ</td><td>বিনামূল্যে</td><td>~$2 – $30+ (পরিবর্তনশীল)</td></tr>
+        <tr><td>ভুল করলে ঝুঁকি</td><td>কোনো ঝুঁকি নেই</td><td>আসল টাকা হারানোর ঝুঁকি আছে</td></tr>
+        <tr><td>কোড / টুল কি একই?</td><td>হ্যাঁ, হুবহু একই</td><td>হ্যাঁ, হুবহু একই</td></tr>
+        <tr><td>Block Explorer</td><td>sepolia.etherscan.io</td><td>etherscan.io</td></tr>
+      </table>
+    </div>
+    <div class="callout info" style="margin-top:1rem;">
+      <span class="material-symbols-outlined">verified_user</span>
+      <div>পরিকল্পনা: আমরা প্রথমে সম্পূর্ণভাবে Sepolia Sandbox-এ তৈরি করব এবং টেস্ট করব। সব
+      ঠিকমতো কাজ করলে, এবং আপনি যখন প্রস্তুত মনে করবেন, তখনই শুধু একটা সেটিং বদলে আসল
+      নেটওয়ার্কে (Ethereum বা সস্তা বিকল্প Polygon) নিয়ে যাওয়া যাবে — কোড নতুন করে লিখতে হবে না।</div>
+    </div>
+  </section>
+
+  <section id="flow">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">alt_route</span> ডায়াগ্রাম ২</div>
+    <h2>একটা দান অনুমোদনের সম্পূর্ণ যাত্রা</h2>
+    <p class="lead">এডমিন যখন "Approve" বাটনে ক্লিক করবেন, তখন পর্দার আড়ালে কী কী ঘটবে — ধাপে ধাপে।</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Bengali, sans-serif">
+  <defs>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#534ab7"/></marker>
+  </defs>
+  <g>
+    <circle cx="60" cy="60" r="26" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
+    <text x="60" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#005027">১</text>
+    <text x="60" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">এডমিন</text>
+    <text x="60" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">Approve চাপেন</text>
+  </g>
+  <line x1="90" y1="60" x2="150" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <g>
+    <circle cx="200" cy="60" r="26" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
+    <text x="200" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#453f8f">২</text>
+    <text x="200" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">record_event()</text>
+    <text x="200" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">কল হয়</text>
+  </g>
+  <line x1="230" y1="60" x2="290" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <g>
+    <circle cx="340" cy="60" r="26" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
+    <text x="340" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#453f8f">৩</text>
+    <text x="340" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">লেনদেন তৈরি</text>
+    <text x="340" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">ওয়ালেট দিয়ে সই</text>
+  </g>
+  <line x1="370" y1="60" x2="430" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <g>
+    <circle cx="480" cy="60" r="26" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
+    <text x="480" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#8a5a0b">৪</text>
+    <text x="480" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">Sepolia-তে পাঠানো</text>
+    <text x="480" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">RPC এর মাধ্যমে</text>
+  </g>
+  <line x1="510" y1="60" x2="570" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <g>
+    <circle cx="620" cy="60" r="26" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
+    <text x="620" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#8a5a0b">৫</text>
+    <text x="620" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">ব্লকে যুক্ত</text>
+    <text x="620" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">(কয়েক সেকেন্ড)</text>
+  </g>
+  <line x1="650" y1="60" x2="710" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <g>
+    <circle cx="760" cy="60" r="26" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
+    <text x="760" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#005027">৬</text>
+    <text x="760" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">tx hash সেভ</text>
+    <text x="760" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">ডাটাবেজে</text>
+  </g>
+
+  <rect x="30" y="165" width="800" height="70" rx="12" fill="#f4fbf6" stroke="#2ecc71" stroke-width="1.5"/>
+  <text x="430" y="192" text-anchor="middle" font-size="13.5" font-weight="700" fill="#005027">ফলাফল</text>
+  <text x="430" y="212" text-anchor="middle" font-size="12.5" fill="#2f6b45">দাতা এখন ক্যাম্পেইন পেজে গিয়ে "ব্লকচেইনে দেখুন" লিংকে ক্লিক করে</text>
+  <text x="430" y="228" text-anchor="middle" font-size="12.5" fill="#2f6b45">নিজেই Sepolia Etherscan-এ পুরো লেনদেন যাচাই করতে পারবেন।</text>
+</svg>
+      <div class="diagram-caption">চিত্র ২: এডমিন অনুমোদন করার মুহূর্ত থেকে ব্লকচেইনে স্থায়ীভাবে রেকর্ড হওয়া পর্যন্ত ৬টা ধাপ</div>
+    </div>
+  </section>
+
+  <section id="needed">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">checklist</span> প্রস্তুতি</div>
+    <h2>শুরু করার আগে যা যা লাগবে</h2>
+    <p class="lead">সবকিছু ফ্রি এবং কয়েক মিনিটেই করা যায়। তাড়াহুড়ো নেই — যখন প্রস্তুত মনে হবে তখন এগুলো করবেন।</p>
+    <div class="card">
+      <div class="checklist">
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">একটা MetaMask ওয়ালেট</div><div class="d">ব্রাউজারে বিনামূল্যে ইনস্টল করা এক্সটেনশন। এটাই এডমিনের "চাবি" হবে, যা দিয়ে কন্ট্রাক্ট বসানো ও অনুমোদন করা হবে।</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">Sepolia টেস্ট ETH (ফ্রি)</div><div class="d">আপনার MetaMask অ্যাড্রেস একটা "faucet" ওয়েবসাইটে পেস্ট করলেই ফ্রি টেস্ট মুদ্রা পেয়ে যাবেন গ্যাস ফি দেওয়ার জন্য।</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">একটা RPC URL (Alchemy বা Infura থেকে)</div><div class="d">বিনামূল্যে সাইন আপ করে "Sepolia" নেটওয়ার্ক বেছে নিলেই একটা লিংক (URL) পাবেন — এটাই পাইথন অ্যাপ থেকে ব্লকচেইনে কথা বলার রাস্তা।</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">সবুজ সংকেত</div><div class="d">উপরের তিনটা রেডি হয়ে গেলে, শুধু বলবেন "রেডি" — তখন আমি কন্ট্রাক্ট ও deploy স্ক্রিপ্ট লিখে দেব, এবং আপনি নিজের কম্পিউটার থেকে কমান্ড চালাবেন।</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="security">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">shield_lock</span> সবচেয়ে গুরুত্বপূর্ণ নিয়ম</div>
+    <h2>নিরাপত্তার নিয়মকানুন</h2>
+    <div class="callout danger">
+      <span class="material-symbols-outlined">gpp_maybe</span>
+      <div><strong>কখনোই কোনো Private Key বা Seed Phrase চ্যাটে পেস্ট করবেন না।</strong> Private
+      key মানে সেই ওয়ালেটের সব টাকা খরচ করার ক্ষমতা — এটা কেউ দেখে ফেললে সব টাকা নিয়ে যেতে
+      পারবে। কোনো বৈধ টুল কখনোই আপনাকে এটা চ্যাটে টাইপ করতে বলবে না। (যদিও Sepolia-তে টাকা
+      নকল, ভালো অভ্যাস হিসেবে এখনই এই নিয়ম মেনে চলা উচিত — কারণ পরে আসল নেটওয়ার্কেও একই
+      ওয়ালেট ব্যবহার হতে পারে।)</div>
+    </div>
+    <div class="callout warn">
+      <span class="material-symbols-outlined">warning</span>
+      <div>এর বদলে: চাবি থাকবে শুধু আপনার নিজের কম্পিউটারে, একটা লোকাল <code>.env</code>
+      ফাইলে। deploy করার কমান্ডগুলো আপনি নিজেই টার্মিনালে চালাবেন — আমি শুধু স্ক্রিপ্ট আর
+      সঠিক কমান্ড লিখে দেব।</div>
+    </div>
+    <div class="callout ok">
+      <span class="material-symbols-outlined">verified_user</span>
+      <div>সব সময় আগে <strong>Sandbox (Sepolia)</strong>-তে তৈরি ও টেস্ট করুন, নকল টাকা দিয়ে।
+      কয়েকটা টেস্ট লেনদেন ঠিকমতো কাজ করলে, তখনই শুধু আসল নেটওয়ার্কে যাওয়ার কথা ভাবা উচিত।</div>
+    </div>
+  </section>
+
+  <section id="contract">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">description</span> কোড প্রিভিউ</div>
+    <h2>স্মার্ট কন্ট্রাক্ট (Attestation মডেল)</h2>
+    <p class="lead">একটা ছোট, সহজে পড়া যায় এমন Solidity কন্ট্রাক্ট — প্রতিটা ট্রাস্ট ইভেন্টের জন্য একটা করে ফাংশন। প্রতিটা ফাংশন শুধু একটা স্থায়ী, পাবলিক লগ এন্ট্রি লেখে — কখনো কোনো টাকা স্পর্শ করে না।</p>
+    <div class="card pad">
+      <div class="codebox">
+<span class="cm">// SPDX-License-Identifier: MIT</span><br>
+<span class="c2">pragma</span> solidity ^0.8.24;<br><br>
+<span class="c2">contract</span> <span class="c3">TrustFundLedger</span> {<br>
+&nbsp;&nbsp;<span class="c2">address public</span> admin;<br><br>
+&nbsp;&nbsp;<span class="c2">event</span> <span class="c4">DonationRecorded</span>(<span class="c2">uint256 indexed</span> campaignId, <span class="c2">uint256</span> amount, <span class="c2">address</span> donor, <span class="c2">string</span> offchainTxId);<br>
+&nbsp;&nbsp;<span class="c2">event</span> <span class="c4">ProofRecorded</span>(<span class="c2">uint256 indexed</span> campaignId, <span class="c2">string</span> proofHash);<br>
+&nbsp;&nbsp;<span class="c2">event</span> <span class="c4">WithdrawalRecorded</span>(<span class="c2">uint256 indexed</span> campaignId, <span class="c2">uint256</span> amount);<br><br>
+&nbsp;&nbsp;<span class="c2">modifier</span> onlyAdmin() { <span class="c2">require</span>(msg.sender == admin, <span class="c1">"Not authorized"</span>); _; }<br>
+&nbsp;&nbsp;<span class="c2">constructor</span>() { admin = msg.sender; }<br><br>
+&nbsp;&nbsp;<span class="c2">function</span> <span class="c3">recordDonation</span>(...) <span class="c2">external</span> onlyAdmin { <span class="c2">emit</span> DonationRecorded(...); }<br>
+&nbsp;&nbsp;<span class="c2">function</span> <span class="c3">recordProof</span>(...) <span class="c2">external</span> onlyAdmin { <span class="c2">emit</span> ProofRecorded(...); }<br>
+&nbsp;&nbsp;<span class="c2">function</span> <span class="c3">recordWithdrawal</span>(...) <span class="c2">external</span> onlyAdmin { <span class="c2">emit</span> WithdrawalRecorded(...); }<br>
+}
+      </div>
+    </div>
+    <div class="callout ok" style="margin-top:1rem;">
+      <span class="material-symbols-outlined">visibility</span>
+      <div>এই <code>event</code>-গুলো পাবলিক বলে, যে কেউ চাইলে যেকোনো ক্যাম্পেইনের পুরো ইতিহাস
+      সরাসরি ব্লকচেইনে গিয়ে দেখতে পারবেন — আপনার সার্ভার চালু আছে কিনা বা সৎ কিনা, তার উপর
+      কোনো নির্ভরতা ছাড়াই।</div>
+    </div>
+  </section>
+
+  <section id="pyside">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">terminal</span> অন্য অর্ধেক</div>
+    <h2>পাইথন অ্যাপে কী পরিবর্তন হবে</h2>
+    <p class="lead">যখন সময় হবে, তখন শুধু একটা ফাইল বদলাবে। বাকি সব — রুট, টেমপ্লেট, ট্রাস্ট স্কোর — অপরিবর্তিত থাকবে।</p>
+    <div class="card pad">
+      <div class="codebox">
+<span class="cm"># .env  (শুধু আপনার কম্পিউটারে থাকবে, কখনো শেয়ার হবে না)</span><br>
+RPC_URL=https://eth-sepolia.g.alchemy.com/v2/&lt;your-key&gt;<br>
+PRIVATE_KEY=&lt;আপনার এডমিন ওয়ালেটের প্রাইভেট কী&gt;<br>
+CONTRACT_ADDRESS=0x...<br><br>
+<span class="cm"># ledger.py — record_event() এখন আসল কাজ করবে</span><br>
+<span class="c2">from</span> web3 <span class="c2">import</span> Web3<br>
+w3 = Web3(Web3.HTTPProvider(RPC_URL))<br>
+contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
+<span class="c2">def</span> <span class="c3">record_event</span>(event_type, payload):<br>
+&nbsp;&nbsp;tx = contract.functions.recordDonation(...).build_transaction({...})<br>
+&nbsp;&nbsp;signed = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)<br>
+&nbsp;&nbsp;tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)<br>
+&nbsp;&nbsp;<span class="c2">return</span> tx_hash.hex()
+      </div>
+    </div>
+  </section>
+
+  <section id="rollout">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">route</span> পরিকল্পনা</div>
+    <h2>প্রস্তুত হলে কীভাবে এগোবে</h2>
+    <div class="card">
+      <div class="timeline">
+        <div class="tl-item now">
+          <div class="tl-rail"><div class="tl-dot">১</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">আপনি এই গাইড পড়ে ওয়ালেট ও RPC রেডি করবেন</div><div class="detail">কোনো সময়সীমা নেই — প্রস্তুত মনে হলেই এগোনো যাবে।</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">২</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">আমি কন্ট্রাক্ট ও deploy স্ক্রিপ্ট লিখে দেব</div><div class="detail">আপনি নিজের কম্পিউটার থেকে, নিজের চাবি দিয়ে, Sepolia-তে বসাবেন।</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">৩</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">আমি <code>ledger.py</code> নতুন করে লিখে দেব</div><div class="detail">এখন থেকে অনুমোদন হলে সরাসরি Sepolia কন্ট্রাক্টে লেখা হবে, লোকাল ফাইলে না।</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">৪</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">একসাথে পুরো ফ্লো টেস্ট করব</div><div class="detail">দান করা → অনুমোদন → নিজেই Etherscan-এ গিয়ে লেনদেন দেখা।</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">৫</div></div>
+          <div class="tl-content"><div class="title">আপনি চাইলে পরে আসল নেটওয়ার্কে যাওয়া</div><div class="detail">একই কন্ট্রাক্ট, একই কোড — শুধু নেটওয়ার্কের সেটিং বদলাবে, আর সামান্য আসল গ্যাস ফি লাগবে।</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="costs">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">payments</span> বাজেট</div>
+    <h2>ভবিষ্যতে খরচ কেমন হবে</h2>
+    <div class="card pad">
+      <p style="margin:0 0 .75rem; font-size:14.5px;">Sandbox-এ টেস্ট করার সময় সব কিছু সম্পূর্ণ ফ্রি। আসল নেটওয়ার্কে গেলে, প্রতিটা এডমিন অনুমোদন একটা ছোট লেনদেন:</p>
+      <ul style="font-size:14px; color:var(--text-muted); margin:0; padding-left:1.2rem;">
+        <li>Ethereum Mainnet-এ: প্রায় <strong>$2 – $30+</strong> প্রতি অনুমোদনে, নেটওয়ার্কের ব্যস্ততার উপর নির্ভর করে</li>
+        <li>Polygon Mainnet-এ (Ethereum-এর সস্তা বিকল্প): প্রায় <strong>$0.001 – $0.01</strong> প্রতি অনুমোদনে</li>
+        <li>কন্ট্রাক্ট একবার বসানোর খরচও একই মাত্রার, শুধু একবারই দিতে হয়</li>
+        <li>Alchemy/Infura-র ফ্রি প্ল্যানই এই প্রজেক্টের জন্য যথেষ্ট</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="glossary">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">translate</span> শব্দকোষ</div>
+    <h2>গুরুত্বপূর্ণ শব্দগুলোর সহজ ব্যাখ্যা</h2>
+    <div class="card pad">
+      <dl class="glossary">
+        <dt>RPC URL</dt><dd>আপনার অ্যাপ যে ওয়েব ঠিকানা দিয়ে ব্লকচেইনের সাথে "কথা বলে" — অনেকটা খাতাটির জন্য একটা API ঠিকানার মতো।</dd>
+        <dt>ABI</dt><dd>একটা ছোট ফাইল যেখানে লেখা থাকে স্মার্ট কন্ট্রাক্টের কোন কোন ফাংশন আছে, যাতে অন্য কোড সেটা কীভাবে ব্যবহার করবে তা বুঝতে পারে।</dd>
+        <dt>Transaction Hash (tx hash)</dt><dd>ব্লকচেইনে লেখা প্রতিটা এন্ট্রির একটা ইউনিক আইডি — অনেকটা রশিদ নম্বরের মতো, যে কেউ খুঁজে বের করতে পারে।</dd>
+        <dt>Mainnet</dt><dd>আসল, লাইভ নেটওয়ার্ক, যেখানে লেনদেনে আসল টাকা ব্যবহার হয়।</dd>
+        <dt>Testnet / Sandbox</dt><dd>প্র্যাকটিসের জন্য নেটওয়ার্ক, যেখানে নকল/ফ্রি টেস্ট মুদ্রা ব্যবহার হয়। Sepolia হলো Ethereum-এর Testnet।</dd>
+        <dt>Faucet</dt><dd>একটা ফ্রি ওয়েবসাইট যা কোনো ওয়ালেট ঠিকানায় সামান্য টেস্ট মুদ্রা পাঠিয়ে দেয়, Testnet-এ প্র্যাকটিস করার জন্য।</dd>
+        <dt>MetaMask</dt><dd>সবচেয়ে জনপ্রিয় ওয়ালেট অ্যাপ — একটা ব্রাউজার এক্সটেনশন যা আপনার চাবি সংরক্ষণ করে ও লেনদেন অনুমোদনে সাহায্য করে।</dd>
+        <dt>Gas Fee</dt><dd>ব্লকচেইনে কোনো নতুন এন্ট্রি লিখতে যে ছোট ফি দিতে হয়।</dd>
+        <dt>Solidity</dt><dd>স্মার্ট কন্ট্রাক্ট লেখার প্রোগ্রামিং ভাষা, যা Ethereum ও এর সব সমগোত্রীয় নেটওয়ার্কে ব্যবহার হয়।</dd>
+      </dl>
+    </div>
+  </section>
+
+  <footer>TrustFundBD — ব্লকচেইন সংযোগ গাইড (বাংলা) · এখনো কোনো কোড তৈরি হয়নি, এটা শুধু পরিকল্পনা</footer>
+
+</div></div>
+</body>
+</html>

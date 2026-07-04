@@ -1,0 +1,25 @@
+{% from "_partials.html" import trust_badge, progress_bar %}
+{# One campaign card, reused by the home page and the browse page. #}
+<a href="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" class="block bg-white rounded-2xl shadow-ambient overflow-hidden hover:shadow-lg transition-all">
+  <div class="h-40 bg-[#e8e8e6] flex items-center justify-center overflow-hidden">
+    {% if campaign.image_url %}
+      <img src="{{ campaign.image_url }}" class="w-full h-full object-cover" alt="">
+    {% else %}
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:40px">image</span>
+    {% endif %}
+  </div>
+  <div class="p-5 space-y-3">
+    <div class="flex items-center justify-between gap-2">
+      <span class="px-2 py-0.5 bg-[#d0e9d2] text-[#005027] text-[10px] font-bold uppercase tracking-widest rounded">{{ campaign.category }}</span>
+      {{ trust_badge(campaign.trust_score) }}
+    </div>
+    <h3 class="font-headline font-bold text-[#1a1c1b] leading-snug line-clamp-2">{{ campaign.title }}</h3>
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span class="font-bold text-[#006d37]">{{ campaign.collected_amount|amount }}</span>
+        <span class="text-[#5f5e5e]">of {{ campaign.goal_amount|amount }}</span>
+      </div>
+      {{ progress_bar(campaign.progress_percent()) }}
+    </div>
+  </div>
+</a>

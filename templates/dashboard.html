@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge %}
+{% block title %}My Donations — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-12 space-y-8">
+  <div>
+    <h1 class="font-headline text-3xl font-bold tracking-tight">My Donations</h1>
+    <p class="text-[#5f5e5e] mt-1">Every donation you've made and its verification status.</p>
+  </div>
+
+  {% if donations %}
+    <div class="bg-white rounded-2xl shadow-ambient overflow-hidden divide-y divide-[#f4f4f2]">
+      {% for d in donations %}
+        <div class="p-5 flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <a href="{{ url_for('campaign_detail', campaign_id=d.campaign_id) }}" class="font-semibold text-sm text-[#006d37] hover:underline">{{ d.campaign.title }}</a>
+            <p class="text-xs text-[#5f5e5e] mt-1">{{ PAYMENT_LABELS[d.payment_method] }} · TX: <code>{{ d.transaction_id }}</code> · {{ d.created_at|dateonly }}</p>
+          </div>
+          <div class="text-right flex items-center gap-3">
+            <span class="font-bold">{{ d.amount|amount }}</span>
+            {{ status_badge(d.status) }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white rounded-2xl p-12 text-center shadow-ambient">
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">favorite</span>
+      <p class="text-[#5f5e5e] mt-3">You haven't donated yet.</p>
+      <a href="{{ url_for('campaigns_list') }}" class="inline-block mt-4 px-6 py-3 btn-gradient text-white font-bold rounded-full text-sm">Browse Campaigns</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

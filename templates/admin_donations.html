@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge %}
+{% block title %}Admin — Donations — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 py-12 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="font-headline text-2xl font-bold">Donations</h1>
+      <p class="text-[#5f5e5e] text-sm mt-1">Manually verify each transaction ID before approving</p>
+    </div>
+    <div class="flex gap-2">
+      {% for f in ['pending', 'approved', 'rejected', 'all'] %}
+        <a href="{{ url_for('admin_donations', filter=f) }}" class="px-4 py-2 rounded-full text-xs font-bold capitalize transition-all {{ 'bg-[#1a1c1b] text-white' if status_filter == f else 'bg-white text-[#5f5e5e] hover:bg-[#e8e8e6]' }}">{{ f }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if donations %}
+    <div class="bg-white rounded-2xl shadow-ambient overflow-hidden overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-[#f4f4f2]">
+            <th class="text-left px-5 py-3 text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest">Donor</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest">Campaign</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest">Amount</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest">Method / TX ID</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest">Status</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#f4f4f2]">
+          {% for d in donations %}
+            <tr class="hover:bg-[#f9f9f7] transition-colors">
+              <td class="px-5 py-4"><p class="font-medium text-sm">{{ d.donor.name }}</p><p class="text-xs text-[#5f5e5e]">{{ d.donor.email }}</p><p class="text-xs text-[#bbcbbb]">{{ d.created_at|dateonly }}</p></td>
+              <td class="px-5 py-4"><a href="{{ url_for('campaign_detail', campaign_id=d.campaign_id) }}" class="text-sm font-medium text-[#006d37] hover:underline">{{ d.campaign.title }}</a></td>
+              <td class="px-5 py-4"><span class="font-bold">{{ d.amount|amount }}</span></td>
+              <td class="px-5 py-4"><p class="text-sm font-medium">{{ PAYMENT_LABELS[d.payment_method] }}</p><code class="text-xs bg-[#f4f4f2] px-2 py-0.5 rounded font-mono text-[#5f5e5e]">{{ d.transaction_id }}</code></td>
+              <td class="px-5 py-4">{{ status_badge(d.status) }}</td>
+              <td class="px-5 py-4">
+                {% if d.status == 'pending' %}
+                  <div class="flex gap-2">
+                    <form method="post">{{ csrf_field() }}<input type="hidden" name="donation_id" value="{{ d.id }}"><input type="hidden" name="action" value="approve">
+                      <button class="px-3 py-1.5 bg-[#d0e9d2] text-[#005027] font-bold rounded-full text-xs hover:bg-[#2ecc71] hover:text-white transition-all">Approve</button>
+                    </form>
+                    <form method="post">{{ csrf_field() }}<input type="hidden" name="donation_id" value="{{ d.id }}"><input type="hidden" name="action" value="reject">
+                      <button class="px-3 py-1.5 bg-[#ffdad6] text-[#93000a] font-bold rounded-full text-xs hover:bg-[#ba1a1a] hover:text-white transition-all">Reject</button>
+                    </form>
+                  </div>
+                {% else %}
+                  <span class="text-xs text-[#bbcbbb]">Processed{% if d.tx_hash %} · <code>{{ d.tx_hash }}</code>{% endif %}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="bg-white rounded-2xl p-12 text-center shadow-ambient">
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">payments</span>
+      <p class="text-[#5f5e5e] mt-3">No {{ status_filter }} donations</p>
+    </div>
+  {% endif %}
+
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
+    <span class="material-symbols-outlined text-amber-600 mt-0.5">info</span>
+    <div class="text-sm text-amber-800">
+      <p class="font-semibold mb-1">Verification Checklist</p>
+      <ol class="list-decimal list-inside space-y-1 text-xs">
+        <li>Log in to the payment app (bKash/Nagad) and verify the transaction ID</li>
+        <li>Confirm the amount matches exactly what the donor entered</li>
+        <li>Click Approve to add funds to the campaign's collected amount</li>
+      </ol>
+    </div>
+  </div>
+</div>
+{% endblock %}

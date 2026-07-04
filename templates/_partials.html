@@ -1,0 +1,34 @@
+{# Small reusable pieces shared across templates, so each page doesn't
+   have to repeat the same status-color / trust-color logic. #}
+
+{% macro status_badge(status) %}
+  {% set colors = {
+    'pending':  'bg-amber-100 text-amber-700',
+    'active':   'bg-[#d0e9d2] text-[#005027]',
+    'approved': 'bg-[#d0e9d2] text-[#005027]',
+    'completed':'bg-[#d0e9d2] text-[#005027]',
+    'rejected': 'bg-[#ffdad6] text-[#93000a]'
+  } %}
+  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest {{ colors.get(status, 'bg-[#f4f4f2] text-[#5f5e5e]') }}">
+    {{ status }}
+  </span>
+{% endmacro %}
+
+{% macro trust_badge(score) %}
+  {% if score >= 75 %}
+    {% set color = '#006d37' %}{% set label = 'High Trust' %}
+  {% elif score >= 50 %}
+    {% set color = '#d97706' %}{% set label = 'Building Trust' %}
+  {% else %}
+    {% set color = '#ba1a1a' %}{% set label = 'Low Trust' %}
+  {% endif %}
+  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest" style="background:{{ color }}1a; color:{{ color }}">
+    <span class="material-symbols-outlined" style="font-size:12px">shield</span> {{ label }} · {{ score }}%
+  </span>
+{% endmacro %}
+
+{% macro progress_bar(percent, thick=False) %}
+  <div class="w-full bg-[#e2e3e1] rounded-full overflow-hidden {{ 'h-3' if thick else 'h-1.5' }}">
+    <div class="bg-gradient-to-r from-[#006d37] to-[#2ecc71] h-full rounded-full" style="width: {{ percent }}%"></div>
+  </div>
+{% endmacro %}

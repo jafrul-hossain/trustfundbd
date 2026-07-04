@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local SQLite database and blockchain-stub ledger — generated at runtime,
+# shouldn't be committed (contains test data, regenerates automatically)
+trustfundbd.db
+chain_ledger.json
+
+# User-uploaded files (campaign images, proof documents) — local disk
+# storage, not meant to be versioned
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Secrets — never commit real credentials
+.env
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db

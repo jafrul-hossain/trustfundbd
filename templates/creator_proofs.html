@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge %}
+{% block title %}Upload Proof — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-6 py-12 space-y-8">
+
+  {% if is_new %}
+    <div class="bg-[#006d37] text-white rounded-2xl p-6 flex items-start gap-4">
+      <span class="material-symbols-outlined" style="font-size:22px">check_circle</span>
+      <div>
+        <p class="font-headline font-bold text-lg">Campaign Submitted!</p>
+        <p class="text-white/80 text-sm mt-1">Your campaign is now under review. Upload a proof document below — it helps admin approve your campaign faster.</p>
+      </div>
+    </div>
+  {% endif %}
+
+  <div>
+    <h1 class="font-headline text-3xl font-bold tracking-tight">Upload Proof</h1>
+    <p class="text-[#5f5e5e] mt-2">Submit evidence of how funds are being used. You can upload proof even before admin approval.</p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-ambient p-8">
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {{ csrf_field() }}
+      <div>
+        <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Campaign *</label>
+        {% if campaigns %}
+          <select name="campaign_id" required class="w-full bg-[#f4f4f2] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30">
+            <option value="">Select a campaign</option>
+            {% for c in campaigns %}
+              <option value="{{ c.id }}" {{ 'selected' if preselected|string == c.id|string else '' }}>{{ c.title }} ({{ c.status }})</option>
+            {% endfor %}
+          </select>
+        {% else %}
+          <div class="bg-[#f4f4f2] rounded-xl p-4 text-sm text-[#5f5e5e] text-center">
+            No campaigns yet. <a href="{{ url_for('create_campaign') }}" class="text-[#006d37] font-semibold hover:underline">Create one first</a>.
+          </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Proof Title *</label>
+        <input type="text" name="title" required placeholder="e.g. Hospital Bill — Week 1"
+               class="w-full px-4 py-3 bg-[#f4f4f2] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Description *</label>
+        <textarea name="description" required rows="4" placeholder="Describe what this proof shows. Include amounts, dates, and what the money was used for."
+                  class="w-full px-4 py-3 bg-[#f4f4f2] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30"></textarea>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Proof Document <span class="text-[#bbcbbb] normal-case font-normal">(image or PDF)</span></label>
+        <input type="file" name="proof_file" accept="image/*,.pdf" class="w-full text-sm">
+      </div>
+
+      <button type="submit" {{ 'disabled' if not campaigns else '' }} class="w-full py-4 btn-gradient text-white font-bold rounded-full hover:opacity-90 active:scale-95 transition-all disabled:opacity-50">Submit Proof</button>
+      <a href="{{ url_for('creator_dashboard') }}" class="block text-center text-sm font-semibold text-[#5f5e5e] hover:text-[#1a1c1b]">← Back to Dashboard</a>
+    </form>
+  </div>
+
+  {% if proofs %}
+    <div class="bg-white rounded-2xl shadow-ambient overflow-hidden">
+      <div class="p-6 border-b border-[#f4f4f2] flex items-center justify-between">
+        <h2 class="font-headline font-bold">All Submitted Proofs</h2>
+        <span class="text-xs text-[#5f5e5e] bg-[#f4f4f2] px-3 py-1 rounded-full">{{ proofs|length }} total</span>
+      </div>
+      <div class="divide-y divide-[#f4f4f2]">
+        {% for proof in proofs %}
+          <div class="p-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-[#f4f4f2] flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[#5f5e5e]" style="font-size:20px">description</span></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-1">
+                <p class="font-semibold text-sm">{{ proof.title }}</p>
+                {{ status_badge(proof.status) }}
+              </div>
+              <p class="text-xs text-[#5f5e5e]"><span class="font-medium">{{ proof.campaign.title }}</span> · {{ proof.created_at|dateonly }}</p>
+              <p class="text-xs text-[#5f5e5e] mt-1">{{ proof.description }}</p>
+            </div>
+            {% if proof.file_url %}
+              <a href="{{ proof.file_url }}" target="_blank" class="flex-shrink-0"><span class="material-symbols-outlined text-[#5f5e5e] hover:text-[#006d37]" style="font-size:20px">download</span></a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

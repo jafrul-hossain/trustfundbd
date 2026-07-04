@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Browse Campaigns — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-12">
+  <div class="mb-10">
+    <h1 class="font-headline text-4xl font-bold tracking-tight mb-3">Browse Campaigns</h1>
+    <p class="text-[#5f5e5e]">Support verified campaigns. Every donation is manually verified.</p>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- Filters -->
+    <aside class="lg:w-64 flex-shrink-0">
+      <form method="get" class="bg-white rounded-2xl p-6 shadow-ambient space-y-6">
+        <h3 class="font-headline font-bold">Filters</h3>
+
+        <div>
+          <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Search</label>
+          <input type="text" name="search" value="{{ search }}" placeholder="Search campaigns…"
+                 class="w-full px-4 py-2.5 bg-[#f4f4f2] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30">
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Category</label>
+          <select name="category" class="w-full bg-[#f4f4f2] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30">
+            <option value="">All Categories</option>
+            {% for c in CATEGORIES %}
+              <option value="{{ c }}" {{ 'selected' if c == category else '' }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Min Trust Score</label>
+          <input type="range" name="min_trust" min="0" max="90" step="10" value="{{ min_trust }}"
+                 class="w-full accent-[#006d37]" onchange="this.form.submit()">
+          <div class="flex justify-between text-xs text-[#5f5e5e] mt-1"><span>Any</span><span>90%+</span></div>
+        </div>
+
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" name="verified_only" value="1" {{ 'checked' if verified_only else '' }} class="accent-[#006d37] w-4 h-4">
+          <span class="text-sm font-medium">Verified Creator Only</span>
+        </label>
+
+        <button type="submit" class="w-full py-2.5 bg-[#1a1c1b] text-white rounded-full text-sm font-bold">Apply Filters</button>
+        <a href="{{ url_for('campaigns_list') }}" class="block text-center w-full py-2 text-sm font-semibold text-[#5f5e5e] hover:text-[#1a1c1b]">Reset</a>
+      </form>
+    </aside>
+
+    <!-- Results -->
+    <div class="flex-1">
+      <p class="text-sm text-[#5f5e5e] mb-6">{{ campaigns|length }} campaigns found</p>
+      {% if campaigns %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {% for campaign in campaigns %}
+            {% include "_campaign_card.html" %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-20 bg-white rounded-2xl">
+          <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:64px">search_off</span>
+          <p class="text-[#5f5e5e] mt-4 font-medium">No campaigns match your filters.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

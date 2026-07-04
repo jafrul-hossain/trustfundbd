@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge %}
+{% block title %}Admin — Edits — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-12 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="font-headline text-2xl font-bold">Description Edits</h1>
+      <p class="text-[#5f5e5e] text-sm mt-1">Approving replaces the campaign's live description</p>
+    </div>
+    <div class="flex gap-2">
+      {% for f in ['pending', 'approved', 'rejected', 'all'] %}
+        <a href="{{ url_for('admin_edits', filter=f) }}" class="px-4 py-2 rounded-full text-xs font-bold capitalize transition-all {{ 'bg-[#1a1c1b] text-white' if status_filter == f else 'bg-white text-[#5f5e5e] hover:bg-[#e8e8e6]' }}">{{ f }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if edits %}
+    <div class="space-y-4">
+      {% for edit in edits %}
+        <div class="bg-white rounded-2xl p-6 shadow-ambient space-y-4">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="font-headline font-bold">{{ edit.campaign.title }}</h3>
+            {{ status_badge(edit.status) }}
+            <span class="text-xs text-[#5f5e5e]">{{ edit.created_at|dateonly }}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest mb-2">Old Description</p>
+              <p class="bg-[#f4f4f2] p-3 rounded-lg text-[#5f5e5e] whitespace-pre-line">{{ edit.old_description }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest mb-2">New Description</p>
+              <p class="bg-[#d0e9d2] p-3 rounded-lg text-[#1a1c1b] whitespace-pre-line">{{ edit.new_description }}</p>
+            </div>
+          </div>
+          {% if edit.status == 'pending' %}
+            <div class="flex gap-2">
+              <form method="post">{{ csrf_field() }}<input type="hidden" name="edit_id" value="{{ edit.id }}"><input type="hidden" name="action" value="approve">
+                <button class="px-4 py-2 bg-[#d0e9d2] text-[#005027] font-bold rounded-full text-sm hover:bg-[#2ecc71] hover:text-white transition-all">Approve</button>
+              </form>
+              <form method="post">{{ csrf_field() }}<input type="hidden" name="edit_id" value="{{ edit.id }}"><input type="hidden" name="action" value="reject">
+                <button class="px-4 py-2 bg-[#ffdad6] text-[#93000a] font-bold rounded-full text-sm hover:bg-[#ba1a1a] hover:text-white transition-all">Reject</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white rounded-2xl p-12 text-center shadow-ambient">
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">edit_document</span>
+      <p class="text-[#5f5e5e] mt-3">No {{ status_filter }} edits</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustFundBD — প্রজেক্ট ও কোড গাইড (বাংলা)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Manrope:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:#006d37; --primary-light:#2ecc71; --primary-pale:#d0e9d2;
+    --bg:#f9f9f7; --surface:#ffffff; --surface-alt:#f4f4f2;
+    --text:#1a1c1b; --text-muted:#5f5e5e; --text-faint:#93928c;
+    --border:#e8e8e6; --border-strong:#d3d1c7;
+    --warning-bg:#fdf1de; --warning-text:#8a5a0b;
+    --danger-bg:#ffdad6; --danger-text:#93000a;
+    --gold:#ba7517; --gold-bg:#faeeda;
+    --radius:14px; --shadow:0 10px 28px rgba(26,28,27,0.07);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Noto Sans Bengali','Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.85; display:flex; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; line-height:1; }
+  code, .mono { font-family:'JetBrains Mono',monospace; direction:ltr; unicode-bidi:embed; }
+
+  .sidebar { width:250px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface); border-left:1px solid var(--border); padding:2rem 1.25rem; }
+  .sidebar .brand { display:flex; align-items:center; gap:.5rem; margin-bottom:2rem; font-family:'Manrope',sans-serif; font-weight:800; font-size:16px; }
+  .sidebar .brand .mark { width:30px; height:30px; border-radius:8px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .sidebar nav a { display:block; padding:.55rem .6rem; border-radius:8px; color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:600; margin-bottom:2px; }
+  .sidebar nav a:hover { background:var(--surface-alt); color:var(--text); }
+
+  .content { flex:1; min-width:0; }
+  .wrap { max-width:940px; margin:0 auto; padding:3rem 2rem 6rem; }
+
+  .hero { background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; border-radius:var(--radius); padding:3rem 2.5rem; margin-bottom:3.5rem; position:relative; overflow:hidden; }
+  .hero::after { content:"volunteer_activism"; font-family:'Material Symbols Outlined'; position:absolute; left:-20px; top:-30px; font-size:220px; opacity:.12; }
+  .hero .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:.06em; margin-bottom:.75rem; opacity:.9; }
+  .hero h1 { font-size:2.1rem; margin:0 0 .8rem; line-height:1.35; font-family:'Noto Sans Bengali',sans-serif; font-weight:800; }
+  .hero p { max-width:660px; opacity:.95; margin:0; font-size:16px; }
+  .badges { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.5rem; }
+  .badge { background:rgba(255,255,255,.18); padding:.4rem .9rem; border-radius:999px; font-size:13px; font-weight:600; }
+
+  section { margin-bottom:3.5rem; scroll-margin-top:2rem; }
+  section > .kicker { display:flex; align-items:center; gap:.6rem; font-size:12.5px; font-weight:700; letter-spacing:.04em; color:var(--primary); margin-bottom:.6rem; }
+  section h2 { font-family:'Noto Sans Bengali',sans-serif; font-weight:800; font-size:1.6rem; margin:0 0 .6rem; }
+  section > p.lead { color:var(--text-muted); max-width:780px; margin:0 0 1.5rem; font-size:15.5px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .pad { padding:1.5rem; }
+
+  .callout { display:flex; gap:.7rem; align-items:flex-start; border-radius:10px; padding:1rem 1.15rem; font-size:14.5px; margin-bottom:1rem; }
+  .callout .material-symbols-outlined { flex-shrink:0; font-size:20px; margin-top:2px; }
+  .callout.info { background:#eef6f0; color:#1f4d30; }
+  .callout.warn { background:var(--warning-bg); color:var(--warning-text); }
+  .callout.ok { background:var(--primary-pale); color:#005027; }
+  .callout.gold { background:var(--gold-bg); color:var(--gold); }
+
+  /* run steps */
+  .steps-num { padding:.5rem 1.5rem 1.5rem; }
+  .step-row { display:flex; gap:1rem; padding:1.1rem 0; border-top:1px solid var(--border); align-items:flex-start; }
+  .step-row:first-child { border-top:none; }
+  .step-num { width:32px; height:32px; border-radius:50%; background:var(--primary-pale); color:#005027; font-weight:800; font-size:14.5px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-row .t { font-weight:700; font-size:15.5px; }
+  .step-row .d { font-size:14px; color:var(--text-muted); margin-top:3px; }
+
+  .codebox { background:#16181a; color:#d9e4dc; border-radius:10px; padding:1.1rem 1.3rem; font-size:13px; line-height:1.7; overflow-x:auto; direction:ltr; text-align:left; font-family:'JetBrains Mono',monospace; }
+  .codebox .cm{color:#7a7f7c;}
+
+  /* file tree */
+  .tree { font-family:'JetBrains Mono',monospace; font-size:13px; direction:ltr; text-align:left; background:#16181a; color:#d9e4dc; border-radius:10px; padding:1.3rem 1.5rem; line-height:1.9; overflow-x:auto; }
+  .tree .d { color:#8ab4f8; font-weight:600; }
+  .tree .f { color:#d9e4dc; }
+  .tree .note { color:#7a7f7c; font-family:'Noto Sans Bengali',sans-serif; }
+
+  /* file cards */
+  .file-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+  .file-card { border:1px solid var(--border); border-radius:12px; padding:1.2rem 1.3rem; }
+  .file-card .fname { font-family:'JetBrains Mono',monospace; direction:ltr; text-align:left; font-weight:700; font-size:14px; color:var(--primary); display:flex; align-items:center; gap:.4rem; margin-bottom:.5rem; }
+  .file-card .fname .material-symbols-outlined { font-size:18px; }
+  .file-card p { font-size:14px; color:var(--text-muted); margin:0; }
+
+  /* diagram */
+  .diagram-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.5rem; overflow-x:auto; }
+  .diagram-wrap svg { display:block; margin:0 auto; min-width:680px; }
+  .diagram-caption { text-align:center; font-size:13px; color:var(--text-faint); margin-top:.8rem; }
+
+  /* role cards */
+  .role-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
+  .role-card { border:1.5px solid var(--border); border-radius:12px; padding:1.3rem; }
+  .role-card .icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:.8rem; }
+  .role-card h4 { margin:0 0 .4rem; font-size:16px; }
+  .role-card ul { margin:.4rem 0 0; padding-right:1.1rem; font-size:13.8px; color:var(--text-muted); }
+  .role-card li { margin-bottom:.35rem; }
+
+  /* trust formula */
+  .formula-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.9rem; }
+  .formula-card { border:1px solid var(--border); border-radius:12px; padding:1.1rem; text-align:center; }
+  .formula-card .pts { font-size:1.8rem; font-weight:800; color:var(--primary); font-family:'Manrope',sans-serif; }
+  .formula-card .lbl { font-size:13px; color:var(--text-muted); margin-top:.3rem; }
+
+  /* feature list */
+  .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; }
+  .feature-card { display:flex; gap:.8rem; align-items:flex-start; border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.2rem; }
+  .feature-card .material-symbols-outlined { color:var(--primary); font-size:22px; flex-shrink:0; margin-top:2px; }
+  .feature-card .t { font-weight:700; font-size:14.5px; }
+  .feature-card .d { font-size:13.3px; color:var(--text-muted); margin-top:2px; }
+
+  table.simple { width:100%; border-collapse:collapse; font-size:14px; }
+  table.simple th { text-align:right; font-size:12px; color:var(--text-faint); padding:.7rem .9rem; border-bottom:1px solid var(--border); }
+  table.simple td { padding:.85rem .9rem; border-bottom:1px solid var(--border); vertical-align:top; text-align:right; }
+  table.simple tr:last-child td { border-bottom:none; }
+
+  footer { text-align:center; color:var(--text-faint); font-size:13px; padding-top:2rem; border-top:1px solid var(--border); }
+
+  @media (max-width:860px){ .sidebar{display:none;} .wrap{padding:2rem 1.25rem 4rem;} .hero{padding:2rem 1.5rem;} }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand"><div class="mark"><span class="material-symbols-outlined" style="font-size:17px;">volunteer_activism</span></div>প্রজেক্ট গাইড</div>
+  <nav>
+    <a href="#overview">এই প্রজেক্টটা কী</a>
+    <a href="#run">কীভাবে চালাবেন</a>
+    <a href="#structure">ফাইল স্ট্রাকচার</a>
+    <a href="#files">প্রতিটা ফাইল কী করে</a>
+    <a href="#roles">ইউজার রোল</a>
+    <a href="#workflow">পুরো ওয়ার্কফ্লো</a>
+    <a href="#trust">ট্রাস্ট স্কোর</a>
+    <a href="#features">ফিচারসমূহ</a>
+    <a href="#limits">সীমাবদ্ধতা</a>
+  </nav>
+</aside>
+
+<div class="content"><div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">TrustFundBD · প্রজেক্ট ও কোড স্ট্রাকচার গাইড</div>
+    <h1>TrustFundBD প্রজেক্টটা কীভাবে কাজ করে — পুরোটা সহজ বাংলায়</h1>
+    <p>এই ডকুমেন্টে আছে: প্রজেক্ট কীভাবে চালাবেন, কোন ফাইলে কী আছে, ইউজাররা (দাতা/ক্রিয়েটর/এডমিন)
+    কীভাবে অ্যাপটা ব্যবহার করে, পুরো ক্যাম্পেইন লাইফসাইকেল, আর ট্রাস্ট স্কোর কীভাবে হিসাব হয়।
+    ব্লকচেইন নিয়ে আলাদা গাইড আগেই লেখা হয়েছে, তাই এখানে সেটা নিয়ে বিস্তারিত বলা হচ্ছে না।</p>
+    <div class="badges">
+      <span class="badge">Python + Flask</span>
+      <span class="badge">SQLite ডাটাবেজ</span>
+      <span class="badge">সহজ, একফাইল সার্ভার</span>
+    </div>
+  </div>
+
+  <section id="overview">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">info</span> ভূমিকা</div>
+    <h2>এই প্রজেক্টটা আসলে কী</h2>
+    <p class="lead">
+      TrustFundBD একটা ক্রাউডফান্ডিং ওয়েবসাইট — মানে এমন একটা প্ল্যাটফর্ম, যেখানে কেউ একটা
+      সমস্যার (যেমন চিকিৎসা খরচ, দুর্যোগ ত্রাণ, শিক্ষা) জন্য টাকা তোলার ক্যাম্পেইন খুলতে পারে,
+      আর মানুষ সেই ক্যাম্পেইনে দান করতে পারে। মূল আইডিয়া হলো <strong>স্বচ্ছতা</strong> — টাকাটা
+      সত্যিই সঠিক জায়গায় যাচ্ছে কিনা, সেটা যাচাই করার একটা সিস্টেম রাখা।
+    </p>
+    <div class="callout info">
+      <span class="material-symbols-outlined">lightbulb</span>
+      <div>এটা মূলত একই অ্যাপের একটা সহজ Python সংস্করণ — আগে এটা Next.js আর Supabase দিয়ে
+      তৈরি ছিল, এখন সেটাকে <strong>Flask (Python) + SQLite</strong> দিয়ে আবার লেখা হয়েছে, যাতে
+      কোডটা সহজে পড়া ও বোঝা যায়, এবং পরে দরকার হলে নতুন ফিচার (যেমন ব্লকচেইন) সহজে যোগ করা যায়।</div>
+    </div>
+  </section>
+
+  <section id="run">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">play_circle</span> শুরু করা</div>
+    <h2>কীভাবে এই অ্যাপটা নিজের কম্পিউটারে চালাবেন</h2>
+    <p class="lead">মাত্র দুইটা কমান্ড — কোনো জটিল সেটআপ নেই।</p>
+    <div class="card">
+      <div class="steps-num">
+        <div class="step-row">
+          <div class="step-num">১</div>
+          <div><div class="t">প্রয়োজনীয় প্যাকেজ ইনস্টল করুন</div><div class="d">টার্মিনাল খুলে প্রজেক্ট ফোল্ডারে গিয়ে নিচের কমান্ডটা চালান:</div>
+            <div class="codebox" style="margin-top:.6rem;">pip install -r requirements.txt</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">২</div>
+          <div><div class="t">অ্যাপ চালু করুন</div><div class="d">তারপর এই কমান্ড দিন:</div>
+            <div class="codebox" style="margin-top:.6rem;">python app.py</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">৩</div>
+          <div><div class="t">ব্রাউজারে খুলুন</div><div class="d">ব্রাউজারে গিয়ে <code>http://127.0.0.1:5000</code> লিখে এন্টার দিন। প্রথমবার চালানোর সময় ডাটাবেজ ফাইল (<code>trustfundbd.db</code>) নিজে থেকেই তৈরি হয়ে যাবে — আলাদা করে কিছু সেটআপ করার দরকার নেই।</div></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">৪</div>
+          <div><div class="t">অ্যাকাউন্ট তৈরি করে টেস্ট করুন</div><div class="d">রেজিস্টার পেজে গিয়ে "Donor", "Fundraise (Creator)", বা "Admin (Demo)" — এই তিনটার যেকোনো একটা বেছে অ্যাকাউন্ট বানাতে পারবেন। "Admin (Demo)" অপশনটা ইচ্ছাকৃতভাবে রাখা হয়েছে, যাতে আপনি নিজেই এডমিনের কাজ (অনুমোদন করা) টেস্ট করতে পারেন।</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="structure">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">folder_open</span> কোড কাঠামো</div>
+    <h2>প্রজেক্টের ফাইল স্ট্রাকচার</h2>
+    <p class="lead">পুরো অ্যাপটা মাত্র কয়েকটা ফাইলে ভাগ করা — প্রতিটা ফাইলের একটাই কাজ, তাই খুঁজে পাওয়া সহজ।</p>
+    <div class="tree">
+<span class="d">trustfundbd_python/</span>  <span class="note">← মূল প্রজেক্ট ফোল্ডার</span>
+├── <span class="f">app.py</span>            <span class="note">সব রুট/পেজ — মূল লজিক এখানে</span>
+├── <span class="f">models.py</span>         <span class="note">ডাটাবেজ টেবিলের গঠন</span>
+├── <span class="f">trust.py</span>          <span class="note">ট্রাস্ট স্কোর হিসাবের সূত্র</span>
+├── <span class="f">ledger.py</span>         <span class="note">অনুমোদনের ইতিহাস লেখার জায়গা</span>
+├── <span class="f">requirements.txt</span>  <span class="note">কোন কোন প্যাকেজ লাগবে তার তালিকা</span>
+├── <span class="f">trustfundbd.db</span>    <span class="note">SQLite ডাটাবেজ ফাইল (নিজে থেকেই তৈরি হয়)</span>
+├── <span class="d">static/uploads/</span>   <span class="note">আপলোড করা ছবি ও প্রমাণপত্র এখানে জমা হয়</span>
+└── <span class="d">templates/</span>        <span class="note">সব ওয়েবপেজের HTML ডিজাইন (১৮টা ফাইল)</span>
+    ├── <span class="f">base.html</span>            <span class="note">সব পেজের কমন কাঠামো (মেনু, ফুটার)</span>
+    ├── <span class="f">home.html</span>             <span class="note">হোমপেজ</span>
+    ├── <span class="f">campaigns.html</span>        <span class="note">সব ক্যাম্পেইনের তালিকা ও সার্চ</span>
+    ├── <span class="f">campaign_detail.html</span>  <span class="note">একটা ক্যাম্পেইনের বিস্তারিত পেজ + দান করার ফর্ম</span>
+    ├── <span class="f">login.html / register.html</span>  <span class="note">সাইন-ইন ও অ্যাকাউন্ট তৈরির পেজ</span>
+    ├── <span class="f">dashboard.html</span>        <span class="note">দাতার নিজের দানের তালিকা</span>
+    ├── <span class="f">creator_dashboard.html</span> <span class="note">ক্রিয়েটরের ক্যাম্পেইন তালিকা</span>
+    ├── <span class="f">create_campaign.html</span>  <span class="note">নতুন ক্যাম্পেইন খোলার ফর্ম</span>
+    ├── <span class="f">creator_proofs.html</span>   <span class="note">খরচের প্রমাণ আপলোডের পেজ</span>
+    ├── <span class="f">creator_withdraw.html</span> <span class="note">টাকা তোলার আবেদনের পেজ</span>
+    └── <span class="f">admin_*.html</span>          <span class="note">এডমিনের ৬টা রিভিউ পেজ (ক্যাম্পেইন, দান, প্রমাণ, উত্তোলন, এডিট, ক্রিয়েটর)</span>
+    </div>
+  </section>
+
+  <section id="files">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">description</span> বিস্তারিত</div>
+    <h2>মূল পাইথন ফাইলগুলো কী কাজ করে</h2>
+    <div class="file-grid">
+      <div class="file-card">
+        <div class="fname"><span class="material-symbols-outlined">code</span>app.py</div>
+        <p>পুরো অ্যাপের হৃদয়। প্রতিটা পেজের ঠিকানা (route) এখানে সংজ্ঞায়িত — যেমন কেউ <code>/campaigns</code>-এ গেলে কী দেখাবে, কেউ দান করলে কী ঘটবে, এডমিন অনুমোদন করলে কী আপডেট হবে — সব লজিক এখানে।</p>
+      </div>
+      <div class="file-card">
+        <div class="fname"><span class="material-symbols-outlined">table_chart</span>models.py</div>
+        <p>ডাটাবেজের প্রতিটা টেবিলের গঠন এখানে লেখা — যেমন User (ইউজার), Campaign (ক্যাম্পেইন), Donation (দান), Proof (প্রমাণ), WithdrawRequest (উত্তোলন অনুরোধ)। কোন কলামে কী তথ্য থাকবে তা এখানেই নির্ধারিত।</p>
+      </div>
+      <div class="file-card">
+        <div class="fname"><span class="material-symbols-outlined">military_tech</span>trust.py</div>
+        <p>একটা ক্যাম্পেইনের "ট্রাস্ট স্কোর" (০ থেকে ১০০) হিসাব করার সূত্র এখানে। প্রতিবার কোনো দান বা প্রমাণ অনুমোদিত হলে এই ফাংশনটা আবার চলে, নতুন স্কোর বসায়।</p>
+      </div>
+      <div class="file-card">
+        <div class="fname"><span class="material-symbols-outlined">receipt_long</span>ledger.py</div>
+        <p>যখনই কোনো দান/প্রমাণ/উত্তোলন অনুমোদিত হয়, তার একটা ইতিহাস (রেফারেন্স নম্বর সহ) এখানে সংরক্ষিত হয়। এটাই ভবিষ্যতে ব্লকচেইনে যুক্ত হওয়ার জায়গা — কিন্তু এই ডকুমেন্টে সেই অংশ নিয়ে আলাদা করে বলা হচ্ছে না, কারণ সেটা নিয়ে ইতিমধ্যে একটা আলাদা গাইড লেখা আছে।</p>
+      </div>
+      <div class="file-card">
+        <div class="fname"><span class="material-symbols-outlined">folder</span>templates/</div>
+        <p>প্রতিটা পেজের HTML ডিজাইন এখানে। Jinja2 নামের একটা টেমপ্লেট সিস্টেম ব্যবহার করে পাইথনের ডেটা (যেমন ক্যাম্পেইনের নাম, পরিমাণ) সরাসরি HTML-এ বসানো হয়।</p>
+      </div>
+      <div class="file-card">
+        <div class="fname"><span class="material-symbols-outlined">image</span>static/uploads/</div>
+        <p>ক্যাম্পেইনের ছবি আর খরচের প্রমাণপত্র (রশিদ, ছবি) এখানে সরাসরি কম্পিউটারের ডিস্কে জমা থাকে — কোনো বাইরের ক্লাউড সার্ভিসের দরকার নেই।</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="roles">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">group</span> ব্যবহারকারী</div>
+    <h2>তিন ধরনের ইউজার রোল</h2>
+    <p class="lead">রেজিস্ট্রেশনের সময় যেকোনো একটা রোল বেছে নেওয়া যায়, আর প্রতিটা রোলের নিজস্ব ড্যাশবোর্ড আছে।</p>
+    <div class="role-grid">
+      <div class="role-card">
+        <div class="icon" style="background:#d0e9d2;"><span class="material-symbols-outlined" style="color:#005027;">volunteer_activism</span></div>
+        <h4>দাতা (Donor)</h4>
+        <ul>
+          <li>ক্যাম্পেইন ব্রাউজ করা ও সার্চ করা</li>
+          <li>বিকাশ/নগদ/ব্যাংকের মাধ্যমে দান করা</li>
+          <li>নিজের সব দানের ইতিহাস দেখা</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="icon" style="background:#eef6f0;"><span class="material-symbols-outlined" style="color:#006d37;">campaign</span></div>
+        <h4>ক্রিয়েটর (Creator)</h4>
+        <ul>
+          <li>নতুন ক্যাম্পেইন খোলার আবেদন করা</li>
+          <li>বিবরণ পরিবর্তনের অনুরোধ পাঠানো</li>
+          <li>খরচের প্রমাণ আপলোড করা</li>
+          <li>জমা হওয়া টাকা তোলার আবেদন করা</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="icon" style="background:#faeeda;"><span class="material-symbols-outlined" style="color:#ba7517;">admin_panel_settings</span></div>
+        <h4>এডমিন (Admin)</h4>
+        <ul>
+          <li>নতুন ক্যাম্পেইন অনুমোদন/বাতিল করা</li>
+          <li>দানের ট্রানজেকশন যাচাই করা</li>
+          <li>প্রমাণ পর্যালোচনা করা</li>
+          <li>টাকা তোলার অনুরোধ অনুমোদন করা</li>
+          <li>ক্রিয়েটরের পরিচয় "ভেরিফাই" করা</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="workflow">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">alt_route</span> সম্পূর্ণ প্রক্রিয়া</div>
+    <h2>একটা ক্যাম্পেইনের পুরো যাত্রা — ধাপে ধাপে</h2>
+    <p class="lead">শুরু থেকে শেষ পর্যন্ত, একটা ক্যাম্পেইন যে ৭টা ধাপ পার হয়।</p>
+    <div class="diagram-wrap">
+<svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Bengali, sans-serif">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#93928c"/></marker>
+  </defs>
+
+  <!-- step 1 -->
+  <rect x="30" y="20" width="380" height="60" rx="12" fill="#eef6f0" stroke="#006d37" stroke-width="1.5"/>
+  <text x="55" y="45" font-size="13" font-weight="800" fill="#005027">১</text>
+  <text x="80" y="45" font-size="13.5" font-weight="700" fill="#1a1c1b">ক্রিয়েটর ক্যাম্পেইন খোলে</text>
+  <text x="80" y="63" font-size="12" fill="#5f5e5e">স্ট্যাটাস: pending (অপেক্ষমাণ)</text>
+  <line x1="220" y1="80" x2="220" y2="110" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- step 2 -->
+  <rect x="30" y="110" width="380" height="60" rx="12" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
+  <text x="55" y="135" font-size="13" font-weight="800" fill="#8a5a0b">২</text>
+  <text x="80" y="135" font-size="13.5" font-weight="700" fill="#1a1c1b">এডমিন অনুমোদন করে</text>
+  <text x="80" y="153" font-size="12" fill="#5f5e5e">স্ট্যাটাস: active (দান নেওয়া শুরু)</text>
+  <line x1="220" y1="170" x2="220" y2="200" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- step 3 -->
+  <rect x="30" y="200" width="380" height="60" rx="12" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
+  <text x="55" y="225" font-size="13" font-weight="800" fill="#005027">৩</text>
+  <text x="80" y="225" font-size="13.5" font-weight="700" fill="#1a1c1b">দাতা দান করে</text>
+  <text x="80" y="243" font-size="12" fill="#5f5e5e">বিকাশ/নগদ/ব্যাংক + ট্রানজেকশন আইডি জমা</text>
+  <line x1="220" y1="260" x2="220" y2="290" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- step 4 -->
+  <rect x="30" y="290" width="380" height="60" rx="12" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
+  <text x="55" y="315" font-size="13" font-weight="800" fill="#8a5a0b">৪</text>
+  <text x="80" y="315" font-size="13.5" font-weight="700" fill="#1a1c1b">এডমিন দান যাচাই করে</text>
+  <text x="80" y="333" font-size="12" fill="#5f5e5e">টাকা যোগ হয় + ট্রাস্ট স্কোর আপডেট</text>
+  <line x1="220" y1="350" x2="220" y2="380" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- step 5 -->
+  <rect x="30" y="380" width="380" height="60" rx="12" fill="#eef6f0" stroke="#006d37" stroke-width="1.5"/>
+  <text x="55" y="405" font-size="13" font-weight="800" fill="#005027">৫</text>
+  <text x="80" y="405" font-size="13.5" font-weight="700" fill="#1a1c1b">ক্রিয়েটর খরচের প্রমাণ দেয়</text>
+  <text x="80" y="423" font-size="12" fill="#5f5e5e">রশিদ, ছবি ইত্যাদি আপলোড করে</text>
+  <line x1="220" y1="440" x2="220" y2="470" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- step 6 -->
+  <rect x="30" y="470" width="380" height="60" rx="12" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
+  <text x="55" y="495" font-size="13" font-weight="800" fill="#8a5a0b">৬</text>
+  <text x="80" y="495" font-size="13.5" font-weight="700" fill="#1a1c1b">এডমিন প্রমাণ অনুমোদন করে</text>
+  <text x="80" y="513" font-size="12" fill="#5f5e5e">ট্রাস্ট স্কোর আরও বাড়ে</text>
+  <line x1="220" y1="530" x2="220" y2="560" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- step 7 -->
+  <rect x="30" y="560" width="380" height="55" rx="12" fill="#d0e9d2" stroke="#006d37" stroke-width="2"/>
+  <text x="55" y="583" font-size="13" font-weight="800" fill="#005027">৭</text>
+  <text x="80" y="583" font-size="13.5" font-weight="700" fill="#1a1c1b">টাকা তোলা (উত্তোলন)</text>
+  <text x="80" y="601" font-size="12" fill="#5f5e5e">কমপক্ষে ১টা অনুমোদিত প্রমাণ লাগবে + এডমিনের অনুমতি</text>
+
+  <!-- side notes box -->
+  <rect x="470" y="20" width="400" height="595" rx="14" fill="#ffffff" stroke="#e8e8e6" stroke-width="1.5"/>
+  <text x="490" y="55" font-size="15" font-weight="800" fill="#1a1c1b">খেয়াল রাখার বিষয়</text>
+
+  <text x="490" y="95" font-size="12.8" fill="#5f5e5e">• প্রতিটা ধাপে "এডমিন অনুমোদন" লাগে —</text>
+  <text x="505" y="113" font-size="12.8" fill="#5f5e5e">এটাই সিস্টেমের নিরাপত্তা স্তর।</text>
+
+  <text x="490" y="148" font-size="12.8" fill="#5f5e5e">• টাকা সরাসরি ক্রিয়েটরের কাছে যায় না —</text>
+  <text x="505" y="166" font-size="12.8" fill="#5f5e5e">প্রথমে "escrow"-তে (নিরাপদ হিসাবে) জমা</text>
+  <text x="505" y="184" font-size="12.8" fill="#5f5e5e">থাকে, প্রমাণ ছাড়া তোলা যায় না।</text>
+
+  <text x="490" y="219" font-size="12.8" fill="#5f5e5e">• collected_amount = মোট জমা হওয়া টাকা</text>
+  <text x="490" y="252" font-size="12.8" fill="#5f5e5e">• released_amount = ক্রিয়েটরকে দেওয়া টাকা</text>
+  <text x="490" y="285" font-size="12.8" fill="#5f5e5e">• escrow-তে বাকি থাকা = collected − released</text>
+
+  <text x="490" y="325" font-size="12.8" fill="#5f5e5e">• ক্রিয়েটর চাইলে ক্যাম্পেইনের বিবরণ</text>
+  <text x="505" y="343" font-size="12.8" fill="#5f5e5e">পরিবর্তনের অনুরোধও পাঠাতে পারে —</text>
+  <text x="505" y="361" font-size="12.8" fill="#5f5e5e">সেটাও এডমিন অনুমোদনের পরই লাইভ হয়।</text>
+
+  <text x="490" y="401" font-size="12.8" fill="#5f5e5e">• এডমিন চাইলে ক্রিয়েটরের পরিচয়</text>
+  <text x="505" y="419" font-size="12.8" fill="#5f5e5e">"ভেরিফাই" করতে পারে — এতে ট্রাস্ট</text>
+  <text x="505" y="437" font-size="12.8" fill="#5f5e5e">স্কোরে বাড়তি ২৫ পয়েন্ট যোগ হয়।</text>
+
+  <rect x="490" y="470" width="360" height="120" rx="10" fill="#f4fbf6" stroke="#2ecc71" stroke-width="1.5"/>
+  <text x="510" y="498" font-size="13" font-weight="700" fill="#005027">ফলাফল</text>
+  <text x="510" y="520" font-size="12.5" fill="#2f6b45">যত বেশি ধাপ সম্পন্ন হবে (যাচাই হওয়া দান,</text>
+  <text x="510" y="538" font-size="12.5" fill="#2f6b45">অনুমোদিত প্রমাণ, ভেরিফাইড পরিচয়), ক্যাম্পেইনের</text>
+  <text x="510" y="556" font-size="12.5" fill="#2f6b45">ট্রাস্ট স্কোর তত বাড়বে — দাতারা সেটা দেখেই</text>
+  <text x="510" y="574" font-size="12.5" fill="#2f6b45">বুঝতে পারবেন কোন ক্যাম্পেইন বেশি নির্ভরযোগ্য।</text>
+</svg>
+      <div class="diagram-caption">চিত্র: একটা ক্যাম্পেইনের ৭-ধাপের জীবনচক্র (lifecycle), শুরু থেকে টাকা তোলা পর্যন্ত</div>
+    </div>
+  </section>
+
+  <section id="trust">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">military_tech</span> স্কোরিং সিস্টেম</div>
+    <h2>ট্রাস্ট স্কোর কীভাবে হিসাব হয় (১০০ এর মধ্যে)</h2>
+    <p class="lead">প্রতিটা ক্যাম্পেইনের পাশে একটা স্কোর দেখানো হয় — এটা চারটা অংশ যোগ করে তৈরি, প্রতিটা অংশ সর্বোচ্চ ২৫ পয়েন্ট।</p>
+    <div class="formula-grid">
+      <div class="formula-card"><div class="pts">২৫</div><div class="lbl">ক্রিয়েটরের পরিচয় ভেরিফাইড কিনা</div></div>
+      <div class="formula-card"><div class="pts">২৫</div><div class="lbl">অনুমোদিত প্রমাণ (প্রতিটা ৮ পয়েন্ট, সর্বোচ্চ ২৫)</div></div>
+      <div class="formula-card"><div class="pts">২৫</div><div class="lbl">গত ৭ দিনের মধ্যে নতুন আপডেট আছে কিনা</div></div>
+      <div class="formula-card"><div class="pts">২৫</div><div class="lbl">দানের কত শতাংশ অনুমোদিত হয়েছে</div></div>
+    </div>
+    <div class="callout ok" style="margin-top:1.2rem;">
+      <span class="material-symbols-outlined">check_circle</span>
+      <div>এই চারটা যোগ করে সর্বোচ্চ ১০০ পয়েন্ট পাওয়া যায়। স্কোর যত বেশি, ক্যাম্পেইনের পাশে তত
+      সবুজ "High Trust" ব্যাজ দেখা যাবে — এটা দাতাদের সিদ্ধান্ত নিতে সাহায্য করে।</div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">star</span> সারসংক্ষেপ</div>
+    <h2>প্রধান ফিচারসমূহ</h2>
+    <div class="feature-grid">
+      <div class="feature-card"><span class="material-symbols-outlined">how_to_reg</span><div><div class="t">তিন ধরনের অ্যাকাউন্ট</div><div class="d">দাতা, ক্রিয়েটর, এডমিন — যেকোনোটা বেছে রেজিস্ট্রেশন করা যায়।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">campaign</span><div><div class="t">ক্যাম্পেইন ব্যবস্থাপনা</div><div class="d">তৈরি, অনুমোদন, বিবরণ পরিবর্তনের অনুরোধ — সবকিছুর ইতিহাস রাখা হয়।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">payments</span><div><div class="t">ম্যানুয়াল পেমেন্ট যাচাই</div><div class="d">বিকাশ/নগদ/ব্যাংকের ট্রানজেকশন আইডি দিয়ে এডমিন নিজে যাচাই করেন।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">receipt_long</span><div><div class="t">খরচের প্রমাণ</div><div class="d">ক্রিয়েটর রশিদ/ছবি আপলোড করেন, এডমিন যাচাই করেন।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">account_balance</span><div><div class="t">এসক্রো-ভিত্তিক উত্তোলন</div><div class="d">জমা হওয়া টাকা সরাসরি না দিয়ে, প্রমাণের ভিত্তিতে ধাপে ধাপে ছাড়া হয়।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">military_tech</span><div><div class="t">স্বয়ংক্রিয় ট্রাস্ট স্কোর</div><div class="d">প্রতিটা অনুমোদনের পর স্কোর নিজে থেকেই নতুন করে হিসাব হয়।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">verified</span><div><div class="t">ক্রিয়েটর ভেরিফিকেশন</div><div class="d">এডমিন প্যানেল থেকে কোনো ক্রিয়েটরের পরিচয় ভেরিফাই/আনভেরিফাই করা যায়।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">search</span><div><div class="t">সার্চ ও ফিল্টার</div><div class="d">ক্যাটাগরি, ট্রাস্ট স্কোর, ভেরিফাইড-অনলি — একাধিক উপায়ে ক্যাম্পেইন খোঁজা যায়।</div></div></div>
+      <div class="feature-card"><span class="material-symbols-outlined">shield_lock</span><div><div class="t">নিরাপত্তা</div><div class="d">পাসওয়ার্ড এনক্রিপ্ট করে রাখা, CSRF সুরক্ষা, এবং প্রতিটা ফর্ম যাচাই করা হয়।</div></div></div>
+    </div>
+  </section>
+
+  <section id="limits">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">info</span> সততার খাতিরে</div>
+    <h2>এই সংস্করণে যা সরল রাখা হয়েছে</h2>
+    <p class="lead">প্রজেক্টটা সহজ ও সহজবোধ্য রাখতে, মূল অ্যাপের তুলনায় কিছু জিনিস ইচ্ছাকৃতভাবে সরল রাখা হয়েছে।</p>
+    <div class="card pad">
+      <table class="simple">
+        <tr><th>বিষয়</th><th>এই সংস্করণে যেভাবে আছে</th></tr>
+        <tr><td>বিবরণ লেখার এডিটর</td><td>রিচ-টেক্সট এডিটর নেই, শুধু সাধারণ লেখা</td></tr>
+        <tr><td>ছবি গ্যালারি</td><td>একটা মূল ছবি + কয়েকটা থাম্বনেইল, স্লাইডার নেই</td></tr>
+        <tr><td>ফাইল সংরক্ষণ</td><td>কম্পিউটারের ডিস্কে সরাসরি সংরক্ষণ, কোনো ক্লাউড স্টোরেজ নেই</td></tr>
+        <tr><td>ক্রিয়েটরকে সরাসরি মেসেজ</td><td>নেই — যোগাযোগের তথ্য পেজেই দেখানো থাকে</td></tr>
+        <tr><td>প্রোফাইল এডিট / রিপোর্ট ফিচার</td><td>এই সংস্করণে নেই</td></tr>
+      </table>
+    </div>
+    <div class="callout warn" style="margin-top:1.2rem;">
+      <span class="material-symbols-outlined">info</span>
+      <div>বাকি সবকিছু — রোল ব্যবস্থাপনা, ক্যাম্পেইন লাইফসাইকেল, দান যাচাই, প্রমাণ পর্যালোচনা,
+      উত্তোলনের নিয়ম, আর ট্রাস্ট স্কোরের সূত্র — মূল অ্যাপের মতোই একদম হুবহু কাজ করে।</div>
+    </div>
+  </section>
+
+  <footer>TrustFundBD — প্রজেক্ট ও কোড স্ট্রাকচার গাইড (বাংলা) · ব্লকচেইন-সম্পর্কিত বিস্তারিত তথ্যের জন্য আলাদা গাইড দেখুন</footer>
+
+</div></div>
+</body>
+</html>

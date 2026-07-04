@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Admin — Creators — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-12 space-y-6">
+  <div>
+    <h1 class="font-headline text-2xl font-bold">Creators</h1>
+    <p class="text-[#5f5e5e] text-sm mt-1">
+      Verifying a creator's identity adds 25 points to the trust score of every campaign they run,
+      and lets their campaigns show up when donors filter by "verified only".
+    </p>
+  </div>
+
+  {% if creators %}
+    <div class="bg-white rounded-2xl shadow-ambient divide-y divide-[#e8e8e6]">
+      {% for creator in creators %}
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6">
+          <div class="flex items-center gap-4 min-w-0">
+            <div class="w-11 h-11 rounded-full bg-[#d0e9d2] text-[#005027] font-bold flex items-center justify-center flex-shrink-0">
+              {{ creator.initials() }}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="font-bold truncate">{{ creator.name }}</p>
+                {% if creator.verified %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#d0e9d2] text-[#005027]">
+                    <span class="material-symbols-outlined" style="font-size:12px">verified</span> Verified
+                  </span>
+                {% else %}
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#f4f4f2] text-[#5f5e5e]">Not verified</span>
+                {% endif %}
+              </div>
+              <p class="text-xs text-[#5f5e5e] mt-0.5">{{ creator.email }} · {{ creator.campaigns|length }} campaign(s) · joined {{ creator.created_at|dateonly }}</p>
+            </div>
+          </div>
+          <form method="post" class="flex-shrink-0">
+            {{ csrf_field() }}
+            <input type="hidden" name="user_id" value="{{ creator.id }}">
+            {% if creator.verified %}
+              <input type="hidden" name="action" value="unverify">
+              <button class="px-4 py-2 bg-[#ffdad6] text-[#93000a] font-bold rounded-full text-sm hover:bg-[#ba1a1a] hover:text-white transition-all">Remove Verification</button>
+            {% else %}
+              <input type="hidden" name="action" value="verify">
+              <button class="px-4 py-2 bg-[#d0e9d2] text-[#005027] font-bold rounded-full text-sm hover:bg-[#2ecc71] hover:text-white transition-all">Verify Creator</button>
+            {% endif %}
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white rounded-2xl p-12 text-center shadow-ambient">
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">person</span>
+      <p class="text-[#5f5e5e] mt-3">No creators have registered yet.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

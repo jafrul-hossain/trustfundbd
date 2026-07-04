@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge %}
+{% block title %}Admin — Withdrawals — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-12 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="font-headline text-2xl font-bold">Withdrawals</h1>
+      <p class="text-[#5f5e5e] text-sm mt-1">Approving here releases funds out of escrow to the creator</p>
+    </div>
+    <div class="flex gap-2">
+      {% for f in ['pending', 'approved', 'rejected', 'all'] %}
+        <a href="{{ url_for('admin_withdrawals', filter=f) }}" class="px-4 py-2 rounded-full text-xs font-bold capitalize transition-all {{ 'bg-[#1a1c1b] text-white' if status_filter == f else 'bg-white text-[#5f5e5e] hover:bg-[#e8e8e6]' }}">{{ f }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if withdrawals %}
+    <div class="space-y-4">
+      {% for wr in withdrawals %}
+        <div class="bg-white rounded-2xl p-6 shadow-ambient flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <h3 class="font-headline font-bold">{{ wr.campaign.title }}</h3>
+              {{ status_badge(wr.status) }}
+            </div>
+            <p class="text-xs text-[#5f5e5e]">Linked proof: {{ wr.proof.title }} · {{ wr.created_at|dateonly }}</p>
+            <p class="text-2xl font-headline font-bold text-[#006d37] mt-2">{{ wr.requested_amount|amount }}</p>
+            {% if wr.tx_hash %}<p class="text-xs text-[#bbcbbb] mt-1">Ledger ref: <code>{{ wr.tx_hash }}</code></p>{% endif %}
+          </div>
+          {% if wr.status == 'pending' %}
+            <div class="flex gap-2 flex-shrink-0">
+              <form method="post">{{ csrf_field() }}<input type="hidden" name="withdrawal_id" value="{{ wr.id }}"><input type="hidden" name="action" value="approve">
+                <button class="px-4 py-2 bg-[#d0e9d2] text-[#005027] font-bold rounded-full text-sm hover:bg-[#2ecc71] hover:text-white transition-all">Approve & Release</button>
+              </form>
+              <form method="post">{{ csrf_field() }}<input type="hidden" name="withdrawal_id" value="{{ wr.id }}"><input type="hidden" name="action" value="reject">
+                <button class="px-4 py-2 bg-[#ffdad6] text-[#93000a] font-bold rounded-full text-sm hover:bg-[#ba1a1a] hover:text-white transition-all">Reject</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white rounded-2xl p-12 text-center shadow-ambient">
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">account_balance</span>
+      <p class="text-[#5f5e5e] mt-3">No {{ status_filter }} withdrawals</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

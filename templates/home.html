@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}TrustFundBD — Verified Crowdfunding{% endblock %}
+{% block content %}
+<section class="bg-white border-b border-[#f4f4f2]">
+  <div class="max-w-7xl mx-auto px-6 py-20 text-center space-y-6">
+    <h1 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+      Crowdfunding you can <span class="text-[#006d37]">verify</span>.
+    </h1>
+    <p class="text-[#5f5e5e] max-w-xl mx-auto">
+      Every campaign on TrustFundBD is reviewed by our admin team. Every donation is manually
+      verified. Every fund release requires proof. That's the whole trust protocol.
+    </p>
+    <div class="flex items-center justify-center gap-4">
+      <a href="{{ url_for('campaigns_list') }}" class="px-6 py-3 btn-gradient text-white font-bold rounded-full shadow-sm hover:opacity-90 transition-all">Browse Campaigns</a>
+      {% if not g.user %}
+        <a href="{{ url_for('register') }}" class="px-6 py-3 bg-[#f4f4f2] text-[#1a1c1b] font-bold rounded-full hover:bg-[#e8e8e6] transition-all">Start a Campaign</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-6 py-14 space-y-8">
+  <div class="flex items-center justify-between">
+    <h2 class="font-headline text-2xl font-bold">Active Campaigns</h2>
+    <a href="{{ url_for('campaigns_list') }}" class="text-sm font-semibold text-[#006d37] hover:underline">View all →</a>
+  </div>
+
+  {% if campaigns %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for campaign in campaigns %}
+        {% include "_campaign_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white rounded-2xl p-16 text-center shadow-ambient">
+      <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">campaign</span>
+      <p class="text-[#5f5e5e] mt-3">No active campaigns yet. Check back soon.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge, trust_badge, progress_bar %}
+{% block title %}Creator Dashboard — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-12 space-y-8">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="font-headline text-3xl font-bold tracking-tight">Creator Dashboard</h1>
+      <p class="text-[#5f5e5e] mt-1">Manage your campaigns and track donations</p>
+    </div>
+    <a href="{{ url_for('create_campaign') }}" class="inline-flex items-center gap-2 px-6 py-3 btn-gradient text-white font-bold rounded-full text-sm hover:opacity-90 transition-all">
+      <span class="material-symbols-outlined" style="font-size:18px">add</span> New Campaign
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl p-6 shadow-ambient">
+      <p class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest mb-2">Total Raised</p>
+      <p class="text-2xl font-headline font-bold">{{ total_raised|amount }}</p>
+    </div>
+    <div class="bg-white rounded-2xl p-6 shadow-ambient">
+      <p class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest mb-2">Active Campaigns</p>
+      <p class="text-2xl font-headline font-bold">{{ active_count }}</p>
+    </div>
+    <div class="bg-white rounded-2xl p-6 shadow-ambient">
+      <p class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest mb-2">Total Campaigns</p>
+      <p class="text-2xl font-headline font-bold">{{ campaigns|length }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <a href="{{ url_for('creator_proofs') }}" class="bg-white rounded-2xl p-6 shadow-ambient hover:shadow-lg transition-all flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-[#d0e9d2] flex items-center justify-center"><span class="material-symbols-outlined text-[#006d37]">receipt_long</span></div>
+      <div><p class="font-bold">Upload Proof</p><p class="text-xs text-[#5f5e5e]">Submit evidence for your campaign</p></div>
+    </a>
+    <a href="{{ url_for('creator_withdraw') }}" class="bg-white rounded-2xl p-6 shadow-ambient hover:shadow-lg transition-all flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-[#d0e9d2] flex items-center justify-center"><span class="material-symbols-outlined text-[#006d37]">account_balance</span></div>
+      <div><p class="font-bold">Request Withdrawal</p><p class="text-xs text-[#5f5e5e]">Withdraw approved funds</p></div>
+    </a>
+  </div>
+
+  <div class="space-y-4">
+    <h2 class="font-headline font-bold text-xl">My Campaigns</h2>
+    {% if campaigns %}
+      {% for campaign in campaigns %}
+        <div class="bg-white rounded-2xl p-6 shadow-ambient space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center gap-3 mb-2">
+                <h3 class="font-headline font-bold">{{ campaign.title }}</h3>
+                {{ status_badge(campaign.status) }}
+              </div>
+              <p class="text-sm text-[#5f5e5e]">{{ campaign.category }}</p>
+            </div>
+            {{ trust_badge(campaign.trust_score) }}
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-[#5f5e5e]">{{ campaign.collected_amount|amount }} raised</span>
+              <span class="font-bold">{{ campaign.progress_percent() }}% of {{ campaign.goal_amount|amount }}</span>
+            </div>
+            {{ progress_bar(campaign.progress_percent()) }}
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" class="text-xs font-semibold text-[#006d37] hover:underline">View Campaign →</a>
+            <a href="{{ url_for('edit_campaign', campaign_id=campaign.id) }}" class="text-xs font-semibold text-[#5f5e5e] hover:text-[#006d37]">Edit Description</a>
+            {% if campaign.status == 'active' %}
+              <a href="{{ url_for('creator_proofs', campaign=campaign.id) }}" class="text-xs font-semibold text-[#5f5e5e] hover:text-[#006d37]">Upload Proof</a>
+              <a href="{{ url_for('creator_withdraw') }}" class="text-xs font-semibold text-[#5f5e5e] hover:text-[#006d37]">Request Withdrawal</a>
+            {% elif campaign.status == 'pending' %}
+              <span class="text-xs text-amber-600 flex items-center gap-1"><span class="material-symbols-outlined" style="font-size:14px">schedule</span> Awaiting admin approval</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="bg-white rounded-2xl p-12 text-center shadow-ambient">
+        <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:48px">campaign</span>
+        <p class="text-[#5f5e5e] mt-3 font-medium">No campaigns yet.</p>
+        <a href="{{ url_for('create_campaign') }}" class="inline-block mt-4 px-6 py-3 btn-gradient text-white font-bold rounded-full text-sm">Create Your First Campaign</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

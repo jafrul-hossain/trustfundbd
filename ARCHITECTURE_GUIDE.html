@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustFundBD — Architecture &amp; Workflow Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #006d37;
+    --primary-light: #2ecc71;
+    --primary-pale: #d0e9d2;
+    --bg: #f9f9f7;
+    --surface: #ffffff;
+    --surface-alt: #f4f4f2;
+    --text: #1a1c1b;
+    --text-muted: #5f5e5e;
+    --text-faint: #93928c;
+    --border: #e8e8e6;
+    --border-strong: #d3d1c7;
+    --warning-bg: #fdf1de;
+    --warning-text: #8a5a0b;
+    --danger-bg: #ffdad6;
+    --danger-text: #93000a;
+    --chain: #534ab7;
+    --chain-bg: #eeedfe;
+    --chain-border: #cecbf6;
+    --radius: 14px;
+    --shadow: 0 10px 28px rgba(26,28,27,0.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    display: flex;
+  }
+  .font-headline { font-family: 'Manrope', sans-serif; }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+    line-height: 1;
+  }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.25rem;
+  }
+  .sidebar .brand {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+  }
+  .sidebar .brand .mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; flex-shrink: 0;
+  }
+  .sidebar nav a {
+    display: block;
+    padding: .5rem .6rem;
+    border-radius: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .sidebar nav a:hover { background: var(--surface-alt); color: var(--text); }
+  .sidebar .step-num {
+    display: inline-flex; align-items:center; justify-content:center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--surface-alt); color: var(--text-faint);
+    font-size: 10px; font-weight: 700; margin-right: 8px;
+  }
+
+  /* ---------- Main content ---------- */
+  .content { flex: 1; min-width: 0; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 3rem 2.5rem;
+    margin-bottom: 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "verified";
+    font-family: 'Material Symbols Outlined';
+    position: absolute; right: -20px; top: -30px;
+    font-size: 220px; opacity: .08; font-variation-settings: 'FILL' 1;
+  }
+  .hero .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    opacity: .85; margin-bottom: .75rem;
+  }
+  .hero h1 { font-size: 2.1rem; margin: 0 0 .75rem; line-height: 1.2; }
+  .hero p { max-width: 560px; opacity: .92; margin: 0; font-size: 15.5px; }
+  .badges { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .badge {
+    background: rgba(255,255,255,.16);
+    padding: .35rem .85rem;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  section { margin-bottom: 3.5rem; scroll-margin-top: 2rem; }
+  section > .kicker {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: .6rem;
+  }
+  section h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.6rem;
+    margin: 0 0 .6rem;
+  }
+  section > p.lead {
+    color: var(--text-muted);
+    max-width: 680px;
+    margin: 0 0 1.75rem;
+    font-size: 15px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- File tree ---------- */
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: .85rem;
+  }
+  .file-card {
+    padding: 1.1rem 1.2rem;
+    display: flex; flex-direction: column; gap: .4rem;
+  }
+  .file-card .file-head { display: flex; align-items: center; gap: .5rem; }
+  .file-card .file-head .material-symbols-outlined { font-size: 20px; color: var(--primary); }
+  .file-card.chain .file-head .material-symbols-outlined { color: var(--chain); }
+  .file-card.chain { border-color: var(--chain-border); background: var(--chain-bg); }
+  .file-card .name { font-weight: 700; font-size: 14.5px; font-family: 'JetBrains Mono', monospace; }
+  .file-card .desc { font-size: 13px; color: var(--text-muted); }
+  .file-card.chain .desc { color: #453f8f; }
+
+  /* ---------- Architecture flow ---------- */
+  .flow {
+    display: flex; align-items: stretch; gap: 0; flex-wrap: wrap;
+    padding: 1.5rem; overflow-x: auto;
+  }
+  .flow .node {
+    background: var(--surface-alt);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: .9rem 1rem;
+    min-width: 128px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .flow .node .t { font-weight: 700; font-size: 13.5px; }
+  .flow .node .s { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+  .flow .arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-faint); padding: 0 .6rem; flex-shrink: 0;
+    font-size: 18px;
+  }
+  .flow-note {
+    display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--chain-bg); border: 1px solid var(--chain-border);
+    color: #453f8f; border-radius: 10px; padding: .85rem 1rem;
+    font-size: 13.5px; margin: 0 1.5rem 1.5rem;
+  }
+  .flow-note .material-symbols-outlined { color: var(--chain); font-size: 19px; flex-shrink: 0; }
+
+  /* ---------- Timeline / workflow ---------- */
+  .timeline { padding: .5rem 1.5rem 1.5rem; }
+  .tl-item { display: grid; grid-template-columns: 30px 1fr; column-gap: 1rem; }
+  .tl-rail { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--surface); border: 2.5px solid var(--border-strong);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .tl-item.chain .tl-dot { background: var(--chain-bg); border-color: var(--chain); }
+  .tl-item.chain .tl-dot .material-symbols-outlined { font-size: 12px; color: var(--chain); }
+  .tl-line { width: 2px; flex: 1; background: var(--border); min-height: 18px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-content { padding-bottom: 1.4rem; }
+  .tl-content .role {
+    display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--text-faint); margin-bottom: 3px;
+  }
+  .tl-content .title { font-weight: 700; font-size: 15px; }
+  .tl-content .detail { font-size: 13.5px; color: var(--text-muted); margin-top: 2px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    margin-left: 6px; vertical-align: middle; text-transform: uppercase; letter-spacing: .03em;
+  }
+  .pill.pending { background: var(--warning-bg); color: var(--warning-text); }
+  .pill.active { background: var(--primary-pale); color: #005027; }
+  .pill.chain { background: var(--chain-bg); color: var(--chain); }
+
+  /* ---------- Trust score ---------- */
+  .trust-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: .85rem; padding: 1.5rem;
+  }
+  .trust-card { text-align: center; padding: 1.1rem .75rem; border-radius: 12px; background: var(--surface-alt); }
+  .trust-card .num { font-family: 'Manrope', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--primary); }
+  .trust-card .label { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+  .trust-total {
+    text-align: center; padding: 0 1.5rem 1.5rem; font-size: 13.5px; color: var(--text-muted);
+  }
+  .trust-total strong { color: var(--text); }
+
+  /* ---------- Code block ---------- */
+  .codebox {
+    background: #16181a;
+    color: #d9e4dc;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-size: 12.8px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 1rem 1.5rem;
+  }
+  .codebox .c1 { color: #7fd99f; }
+  .codebox .c2 { color: #f0c674; }
+  .codebox .c3 { color: #8ab4f8; }
+  .codebox .cm { color: #7a7f7c; }
+
+  /* ---------- Wireframes ---------- */
+  .wire-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.4rem; padding: 1.5rem; }
+  .wire-label { font-size: 12.5px; font-weight: 700; color: var(--text-muted); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .04em; }
+  .wire-box { border: 1.5px solid var(--border-strong); border-radius: 8px; padding: .6rem; background: var(--surface); }
+  .wire-bar { background: var(--surface-alt); border-radius: 3px; }
+  .wire-caption { font-size: 11.5px; color: var(--text-faint); margin-top: .5rem; }
+
+  /* ---------- Run steps ---------- */
+  .steps { padding: 1.5rem; }
+  .step { display: flex; gap: 1rem; padding: .9rem 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; }
+  .step .n {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; flex-shrink: 0;
+  }
+  .step code { background: var(--surface-alt); padding: .15rem .5rem; border-radius: 5px; font-size: 13px; }
+
+  footer {
+    text-align: center; color: var(--text-faint); font-size: 12.5px;
+    padding-top: 2rem; border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .wrap { padding: 2rem 1.25rem 4rem; }
+    .hero { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="mark"><span class="material-symbols-outlined" style="font-size:17px;">volunteer_activism</span></div>
+    TrustFundBD
+  </div>
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#files">Code files</a>
+    <a href="#architecture">Request architecture</a>
+    <a href="#workflow">Campaign lifecycle</a>
+    <a href="#trust">Trust score logic</a>
+    <a href="#blockchain">Blockchain hook</a>
+    <a href="#wireframes">Page wireframes</a>
+    <a href="#run">Running it</a>
+  </nav>
+</aside>
+
+<div class="content">
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">Architecture &amp; workflow guide</div>
+    <h1>TrustFundBD — Python edition</h1>
+    <p>A plain Flask + SQLite rewrite of the crowdfunding platform, built so the code
+       is easy to read and ready to plug into a real blockchain.</p>
+    <div class="badges">
+      <span class="badge">Flask</span>
+      <span class="badge">SQLAlchemy + SQLite</span>
+      <span class="badge">Jinja templates</span>
+      <span class="badge">Blockchain-ready ledger</span>
+    </div>
+  </div>
+
+  <section id="overview">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">info</span> Overview</div>
+    <h2>What this app is</h2>
+    <p class="lead">
+      TrustFundBD is a crowdfunding site with three roles — donors, campaign creators, and admins —
+      built around one idea: nothing moves without verification. Campaigns need admin approval to go
+      live, donations need a verified transaction ID, and money only leaves escrow once an admin
+      approves a withdrawal backed by proof. A <strong>trust score</strong> quantifies how much of that
+      verification a campaign has earned.
+    </p>
+  </section>
+
+  <section id="files">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">folder_open</span> Code files</div>
+    <h2>How the project is organized</h2>
+    <p class="lead">Four Python files hold all the logic. Everything else is templates and static assets.</p>
+    <div class="file-grid">
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">code</span><span class="name">app.py</span></div>
+        <div class="desc">Every route: auth, campaigns, donations, proofs, withdrawals, admin approvals.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">database</span><span class="name">models.py</span></div>
+        <div class="desc">6 database tables — User, Campaign, Donation, Proof, CampaignEdit, WithdrawRequest.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">verified</span><span class="name">trust.py</span></div>
+        <div class="desc">One pure function: recalculates a campaign's 0–100 trust score.</div>
+      </div>
+      <div class="file-card chain">
+        <div class="file-head"><span class="material-symbols-outlined">link</span><span class="name">ledger.py</span></div>
+        <div class="desc">The blockchain integration seam — one function to swap out later.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">description</span><span class="name">templates/</span></div>
+        <div class="desc">18 server-rendered HTML pages (Jinja2), Tailwind CDN for styling.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">folder_zip</span><span class="name">static/uploads/</span></div>
+        <div class="desc">Campaign images and proof documents, saved to local disk.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">storage</span><span class="name">trustfundbd.db</span></div>
+        <div class="desc">SQLite file, created automatically the first time you run the app.</div>
+      </div>
+      <div class="file-card chain">
+        <div class="file-head"><span class="material-symbols-outlined">receipt_long</span><span class="name">chain_ledger.json</span></div>
+        <div class="desc">The stand-in "chain" — an append-only log of trust events.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="architecture">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">account_tree</span> Request architecture</div>
+    <h2>What happens on every page load</h2>
+    <p class="lead">Flask has no separate frontend build — the server renders full HTML for every request.</p>
+    <div class="card">
+      <div class="flow">
+        <div class="node"><div class="t">Browser</div><div class="s">clicks link / submits form</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="t">app.py route</div><div class="s">reads the request</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="t">models.py</div><div class="s">reads / writes SQLite</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="t">Jinja template</div><div class="s">renders full HTML</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="t">Browser</div><div class="s">shows the page</div></div>
+      </div>
+      <div class="flow-note">
+        <span class="material-symbols-outlined">bolt</span>
+        <div>On the three approval routes, <code>app.py</code> also calls <code>trust.py</code> to
+        rescore the campaign and <code>ledger.py</code> to record the event — before the page renders.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="workflow">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">timeline</span> Campaign lifecycle</div>
+    <h2>The full donor → creator → admin loop</h2>
+    <p class="lead">Every campaign moves through the same nine steps, alternating between creator/donor
+       actions and admin verification.</p>
+    <div class="card">
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Anyone</div>
+            <div class="title">Register</div>
+            <div class="detail">Choose donor, creator, or Admin (Demo) — the demo option mirrors the original app so admin features are testable.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Creator</div>
+            <div class="title">Start a campaign <span class="pill pending">pending</span></div>
+            <div class="detail">Title, description, category, goal amount, optional images and contact info.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Admin</div>
+            <div class="title">Approve campaign <span class="pill active">active</span></div>
+            <div class="detail">Campaign is now public and can accept donations.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Donor</div>
+            <div class="title">Donate <span class="pill pending">pending</span></div>
+            <div class="detail">Picks an amount, "sends" money via bKash / Nagad / bank, submits the transaction ID.</div>
+          </div>
+        </div>
+
+        <div class="tl-item chain">
+          <div class="tl-rail"><div class="tl-dot"><span class="material-symbols-outlined">link</span></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Admin</div>
+            <div class="title">Approve donation <span class="pill chain">ledger event</span></div>
+            <div class="detail">Transaction ID verified manually. <code>collected_amount</code> increases and the trust score recalculates.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Creator</div>
+            <div class="title">Upload proof</div>
+            <div class="detail">A receipt, bill, or photo showing how the money is being used.</div>
+          </div>
+        </div>
+
+        <div class="tl-item chain">
+          <div class="tl-rail"><div class="tl-dot"><span class="material-symbols-outlined">link</span></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Admin</div>
+            <div class="title">Approve proof <span class="pill chain">ledger event</span></div>
+            <div class="detail">Trust score goes up again; the proof appears in the campaign's public timeline.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <div class="role">Creator</div>
+            <div class="title">Request withdrawal</div>
+            <div class="detail">Requires at least one approved proof; amount capped at collected minus released.</div>
+          </div>
+        </div>
+
+        <div class="tl-item chain">
+          <div class="tl-rail"><div class="tl-dot"><span class="material-symbols-outlined">link</span></div></div>
+          <div class="tl-content">
+            <div class="role">Admin</div>
+            <div class="title">Approve withdrawal <span class="pill chain">ledger event</span></div>
+            <div class="detail">Money actually leaves escrow — <code>released_amount</code> increases. The core trust promise of the app.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="trust">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">shield</span> Trust score logic</div>
+    <h2>A campaign's trust score, out of 100</h2>
+    <p class="lead">Recalculated every time a donation or proof gets approved, in <code>trust.py</code>.</p>
+    <div class="card">
+      <div class="trust-grid">
+        <div class="trust-card"><div class="num">+25</div><div class="label">Creator identity verified</div></div>
+        <div class="trust-card"><div class="num">+25</div><div class="label">Approved proofs (8 pts each, capped)</div></div>
+        <div class="trust-card"><div class="num">+25</div><div class="label">Updated within the last 7 days</div></div>
+        <div class="trust-card"><div class="num">+25</div><div class="label">Donation approval rate</div></div>
+      </div>
+      <div class="trust-total">All four add up to a score between <strong>0 and 100</strong>, shown on every campaign card and the campaign's "Trust Protocol" panel.</div>
+    </div>
+  </section>
+
+  <section id="blockchain">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">link</span> Blockchain hook</div>
+    <h2>Where blockchain plugs in</h2>
+    <p class="lead">
+      Every approval that "establishes trust" calls one function — <code>record_event()</code> in
+      <code>ledger.py</code>. Today it appends to a local JSON file and returns a fake hash. Swapping
+      in a real chain means rewriting the inside of that one function; nothing else in the app changes.
+    </p>
+    <div class="card">
+      <div class="codebox">
+<span class="cm"># inside app.py, at each of the 3 approval routes</span><br>
+donation.tx_hash = <span class="c3">record_event</span>(<span class="c1">"donation_approved"</span>, {<span class="c1">"amount"</span>: donation.amount, ...})<br><br>
+<span class="cm"># inside ledger.py — the ONE function to change later</span><br>
+<span class="c2">def</span> <span class="c3">record_event</span>(event_type, payload):<br>
+&nbsp;&nbsp;<span class="cm"># today: append to chain_ledger.json, return "local-000004"</span><br>
+&nbsp;&nbsp;<span class="cm"># later: call a smart contract with web3.py, return the real tx hash</span><br>
+&nbsp;&nbsp;<span class="c2">return</span> tx_hash
+      </div>
+      <div class="flow-note" style="margin-top:0;">
+        <span class="material-symbols-outlined">check_circle</span>
+        <div>Donation, Proof, and WithdrawRequest already have a <code>tx_hash</code> column and the
+        templates already display it when present — so a real hash shows up automatically.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="wireframes">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">dashboard</span> Page wireframes</div>
+    <h2>How the key pages are laid out</h2>
+    <p class="lead">Server-rendered pages, styled with Tailwind via CDN — no build step required.</p>
+    <div class="card">
+      <div class="wire-grid">
+
+        <div>
+          <div class="wire-label">Campaign detail</div>
+          <div class="wire-box">
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div class="wire-bar" style="height:9px; width:65%;"></div>
+                <div class="wire-bar" style="height:56px;"></div>
+                <div class="wire-bar" style="height:7px; width:88%;"></div>
+                <div class="wire-bar" style="height:7px; width:55%;"></div>
+                <div class="wire-bar" style="height:28px; margin-top:4px;"></div>
+                <div class="wire-bar" style="height:7px; width:75%;"></div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div class="wire-bar" style="height:64px;"></div>
+                <div class="wire-bar" style="height:38px;"></div>
+                <div class="wire-bar" style="height:46px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="wire-caption">Hero, fund flow, proof timeline · trust panel + donate form</div>
+        </div>
+
+        <div>
+          <div class="wire-label">Admin dashboard</div>
+          <div class="wire-box">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <div class="wire-bar" style="height:32px;"></div>
+                <div class="wire-bar" style="height:32px;"></div>
+                <div class="wire-bar" style="height:32px;"></div>
+                <div class="wire-bar" style="height:32px;"></div>
+              </div>
+              <div class="wire-bar" style="height:40px;"></div>
+              <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px;">
+                <div class="wire-bar" style="height:18px;"></div>
+                <div class="wire-bar" style="height:18px;"></div>
+                <div class="wire-bar" style="height:18px;"></div>
+                <div class="wire-bar" style="height:18px;"></div>
+                <div class="wire-bar" style="height:18px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="wire-caption">4 pending-count cards · fund totals · quick links</div>
+        </div>
+
+        <div>
+          <div class="wire-label">Creator dashboard</div>
+          <div class="wire-box">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px;">
+                <div class="wire-bar" style="height:28px;"></div>
+                <div class="wire-bar" style="height:28px;"></div>
+                <div class="wire-bar" style="height:28px;"></div>
+              </div>
+              <div class="wire-bar" style="height:34px;"></div>
+              <div class="wire-bar" style="height:34px;"></div>
+            </div>
+          </div>
+          <div class="wire-caption">Stats row · one card per campaign</div>
+        </div>
+
+        <div>
+          <div class="wire-label">Donate form (sidebar)</div>
+          <div class="wire-box">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:5px;">
+                <div class="wire-bar" style="height:20px;"></div>
+                <div class="wire-bar" style="height:20px;"></div>
+                <div class="wire-bar" style="height:20px;"></div>
+                <div class="wire-bar" style="height:20px;"></div>
+              </div>
+              <div class="wire-bar" style="height:26px;"></div>
+              <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:5px;">
+                <div class="wire-bar" style="height:22px;"></div>
+                <div class="wire-bar" style="height:22px;"></div>
+                <div class="wire-bar" style="height:22px;"></div>
+              </div>
+              <div class="wire-bar" style="height:22px;"></div>
+              <div class="wire-bar" style="height:30px; background:var(--primary-pale);"></div>
+            </div>
+          </div>
+          <div class="wire-caption">Quick amounts · payment method · tx ID · submit</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="run">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">terminal</span> Running it</div>
+    <h2>Three commands to get started</h2>
+    <div class="card">
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <div>Install dependencies — <code>pip install -r requirements.txt</code></div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div>Start the server — <code>python app.py</code></div>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <div>Open <code>http://127.0.0.1:5000</code> — the SQLite database is created automatically.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>TrustFundBD — Python edition · companion architecture guide</footer>
+
+</div>
+</div>
+</body>
+</html>

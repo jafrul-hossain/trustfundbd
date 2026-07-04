@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustFundBD — Blockchain Integration Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #006d37; --primary-light: #2ecc71; --primary-pale: #d0e9d2;
+    --bg: #f9f9f7; --surface: #ffffff; --surface-alt: #f4f4f2;
+    --text: #1a1c1b; --text-muted: #5f5e5e; --text-faint: #93928c;
+    --border: #e8e8e6; --border-strong: #d3d1c7;
+    --warning-bg: #fdf1de; --warning-text: #8a5a0b;
+    --danger-bg: #ffdad6; --danger-text: #93000a;
+    --chain: #534ab7; --chain-bg: #eeedfe; --chain-border: #cecbf6;
+    --gold: #ba7517; --gold-bg: #faeeda; --gold-border: #fac775;
+    --radius: 14px; --shadow: 0 10px 28px rgba(26,28,27,0.07);
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.65; display:flex; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; line-height:1; }
+  code, .mono { font-family:'JetBrains Mono',monospace; }
+
+  .sidebar { width:250px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface); border-right:1px solid var(--border); padding:2rem 1.25rem; }
+  .sidebar .brand { display:flex; align-items:center; gap:.5rem; margin-bottom:2rem; font-family:'Manrope',sans-serif; font-weight:800; font-size:16px; }
+  .sidebar .brand .mark { width:30px; height:30px; border-radius:8px; background:var(--chain); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .sidebar nav a { display:block; padding:.5rem .6rem; border-radius:8px; color:var(--text-muted); text-decoration:none; font-size:13.5px; font-weight:500; margin-bottom:2px; }
+  .sidebar nav a:hover { background:var(--surface-alt); color:var(--text); }
+
+  .content { flex:1; min-width:0; }
+  .wrap { max-width:900px; margin:0 auto; padding:3rem 2rem 6rem; }
+
+  .hero { background:linear-gradient(135deg,var(--chain),#7f77dd); color:#fff; border-radius:var(--radius); padding:3rem 2.5rem; margin-bottom:3.5rem; position:relative; overflow:hidden; }
+  .hero::after { content:"link"; font-family:'Material Symbols Outlined'; position:absolute; right:-20px; top:-30px; font-size:220px; opacity:.1; }
+  .hero .eyebrow { font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; opacity:.85; margin-bottom:.75rem; }
+  .hero h1 { font-size:2.05rem; margin:0 0 .75rem; line-height:1.2; font-family:'Manrope',sans-serif; }
+  .hero p { max-width:600px; opacity:.94; margin:0; font-size:15.5px; }
+  .badges { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.5rem; }
+  .badge { background:rgba(255,255,255,.16); padding:.35rem .85rem; border-radius:999px; font-size:12.5px; font-weight:600; }
+
+  section { margin-bottom:3.5rem; scroll-margin-top:2rem; }
+  section > .kicker { display:flex; align-items:center; gap:.6rem; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--chain); margin-bottom:.6rem; }
+  section h2 { font-family:'Manrope',sans-serif; font-size:1.55rem; margin:0 0 .6rem; }
+  section > p.lead { color:var(--text-muted); max-width:700px; margin:0 0 1.5rem; font-size:15px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .pad { padding:1.5rem; }
+
+  /* callouts */
+  .callout { display:flex; gap:.7rem; align-items:flex-start; border-radius:10px; padding:.9rem 1.1rem; font-size:13.8px; margin-bottom:1rem; }
+  .callout .material-symbols-outlined { flex-shrink:0; font-size:19px; margin-top:1px; }
+  .callout.warn { background:var(--warning-bg); color:var(--warning-text); }
+  .callout.danger { background:var(--danger-bg); color:var(--danger-text); }
+  .callout.info { background:var(--chain-bg); color:#453f8f; }
+  .callout.ok { background:var(--primary-pale); color:#005027; }
+  .callout.gold { background:var(--gold-bg); color:var(--gold); }
+
+  /* plain-english analogy cards */
+  .analogy-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:.85rem; }
+  .analogy-card { border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; }
+  .analogy-card .term { font-weight:700; font-size:14px; display:flex; align-items:center; gap:.4rem; margin-bottom:.35rem; }
+  .analogy-card .term .material-symbols-outlined { font-size:17px; color:var(--chain); }
+  .analogy-card .plain { font-size:13.3px; color:var(--text-muted); }
+
+  /* comparison cards */
+  .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:700px) { .compare-grid { grid-template-columns:1fr; } }
+  .opt-card { border:1.5px solid var(--border); border-radius:12px; padding:1.25rem; }
+  .opt-card.recommended { border-color:var(--primary-light); background:#f4fbf6; }
+  .opt-card .opt-tag { display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 9px; border-radius:999px; margin-bottom:.6rem; }
+  .opt-card.recommended .opt-tag { background:var(--primary-pale); color:#005027; }
+  .opt-card:not(.recommended) .opt-tag { background:var(--surface-alt); color:var(--text-muted); }
+  .opt-card h4 { margin:0 0 .3rem; font-size:15.5px; }
+  .opt-card .analogy-line { font-size:12.8px; font-style:italic; color:var(--text-faint); margin-bottom:.5rem; }
+  .opt-card ul { margin:.5rem 0 0; padding-left:1.1rem; font-size:13.5px; color:var(--text-muted); }
+  .opt-card li { margin-bottom:.3rem; }
+
+  /* network table */
+  table.netw { width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.netw th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-faint); padding:.6rem .9rem; border-bottom:1px solid var(--border); }
+  table.netw td { padding:.75rem .9rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.netw tr:last-child td { border-bottom:none; }
+  table.netw .rowtag { display:inline-block; background:var(--primary-pale); color:#005027; font-size:10px; font-weight:700; padding:1px 7px; border-radius:999px; margin-left:6px; text-transform:uppercase; }
+  table.netw .rowtag.gold { background:var(--gold-bg); color:var(--gold); }
+
+  /* checklist */
+  .checklist { padding:1.5rem; }
+  .check-item { display:flex; gap:.85rem; padding:.9rem 0; border-top:1px solid var(--border); }
+  .check-item:first-child { border-top:none; }
+  .check-item .box { width:22px; height:22px; border-radius:6px; border:2px solid var(--border-strong); flex-shrink:0; margin-top:2px; }
+  .check-item .t { font-weight:700; font-size:14.5px; }
+  .check-item .d { font-size:13.3px; color:var(--text-muted); margin-top:2px; }
+
+  /* rollout timeline */
+  .timeline { padding:.5rem 1.5rem 1.5rem; }
+  .tl-item { display:grid; grid-template-columns:30px 1fr; column-gap:1rem; }
+  .tl-rail { display:flex; flex-direction:column; align-items:center; }
+  .tl-dot { width:22px; height:22px; border-radius:50%; background:var(--surface); border:2.5px solid var(--border-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--text-faint); }
+  .tl-item.now .tl-dot { background:var(--chain); border-color:var(--chain); color:#fff; }
+  .tl-line { width:2px; flex:1; background:var(--border); min-height:18px; }
+  .tl-item:last-child .tl-line { display:none; }
+  .tl-content { padding-bottom:1.3rem; }
+  .tl-content .title { font-weight:700; font-size:15px; }
+  .tl-content .detail { font-size:13.5px; color:var(--text-muted); margin-top:2px; }
+
+  .codebox { background:#16181a; color:#d9e4dc; border-radius:10px; padding:1.1rem 1.3rem; font-size:12.6px; line-height:1.7; overflow-x:auto; }
+  .codebox .c1{color:#7fd99f;} .codebox .c2{color:#f0c674;} .codebox .c3{color:#8ab4f8;} .codebox .cm{color:#7a7f7c;} .codebox .c4{color:#e0a5d8;}
+
+  /* glossary */
+  .glossary dt { font-weight:700; font-size:14px; margin-top:1rem; font-family:'JetBrains Mono',monospace; }
+  .glossary dt:first-child { margin-top:0; }
+  .glossary dd { margin:.2rem 0 0; font-size:13.5px; color:var(--text-muted); }
+
+  footer { text-align:center; color:var(--text-faint); font-size:12.5px; padding-top:2rem; border-top:1px solid var(--border); }
+
+  @media (max-width:860px){ .sidebar{display:none;} .wrap{padding:2rem 1.25rem 4rem;} .hero{padding:2rem 1.5rem;} }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand"><div class="mark"><span class="material-symbols-outlined" style="font-size:17px;">link</span></div>Blockchain Guide</div>
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#basics">Blockchain basics</a>
+    <a href="#models">Two integration models</a>
+    <a href="#network">Ethereum vs. Polygon</a>
+    <a href="#needed">What you need to give me</a>
+    <a href="#security">Security rules</a>
+    <a href="#contract">The smart contract</a>
+    <a href="#pyside">Python-side changes</a>
+    <a href="#rollout">Rollout plan</a>
+    <a href="#costs">Cost estimate</a>
+    <a href="#glossary">Glossary</a>
+  </nav>
+</aside>
+
+<div class="content"><div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">Blockchain integration guide</div>
+    <h1>Connecting TrustFundBD to a real chain</h1>
+    <p>How to move from the local <code>chain_ledger.json</code> stand-in to a public blockchain,
+       so every donation, proof, and fund release is independently verifiable by anyone — not just
+       trusted because the app says so. Written to be readable with no prior blockchain background.</p>
+    <div class="badges">
+      <span class="badge">Solidity</span>
+      <span class="badge">web3.py</span>
+      <span class="badge">Ethereum-compatible</span>
+      <span class="badge">On-chain events</span>
+    </div>
+  </div>
+
+  <section id="overview">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">info</span> Overview</div>
+    <h2>What "real transparency" actually requires</h2>
+    <p class="lead">
+      Right now, <code>ledger.py</code> writes trust events to a local JSON file — nobody outside your
+      server can see it. Real transparency means writing those same events to a public blockchain,
+      where anyone can look up the transaction and see the exact amount, timestamp, and campaign —
+      permanently, with no way for anyone (including you) to edit or delete it afterward.
+    </p>
+    <div class="callout info">
+      <span class="material-symbols-outlined">lightbulb</span>
+      <div>This is a two-part job: (1) a small <strong>Solidity smart contract</strong> deployed on a
+      chain, and (2) rewriting <code>ledger.py</code>'s <code>record_event()</code> to call it via
+      <strong>web3.py</strong> instead of writing to a file. Everything else in the app — routes,
+      templates, the trust score — stays exactly the same. <strong>Nothing gets built until you're
+      ready</strong> — this document is just the plan.</div>
+    </div>
+  </section>
+
+  <section id="basics">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">school</span> Start here</div>
+    <h2>Blockchain, in plain English</h2>
+    <p class="lead">Five ideas explain almost everything you need to follow the rest of this guide.</p>
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">menu_book</span>Blockchain</div>
+        <div class="plain">A shared notebook that thousands of computers all keep an identical copy of. Anyone can read a page. Once a page is written, nobody can tear it out or change it.</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">key</span>Wallet</div>
+        <div class="plain">Your personal keychain for that notebook. It proves "this entry was written by me" — no username or password, just a secret key only you hold.</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">memory</span>Smart contract</div>
+        <div class="plain">A tiny program written into a page of the notebook. Once it's there, it runs exactly as written, forever, for anyone who calls it — nobody can quietly edit its rules.</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">local_gas_station</span>Gas</div>
+        <div class="plain">A small fee, paid in the network's own currency, for writing a new entry into the notebook. Simple entries cost fractions of a cent to a few dollars, depending on the network.</div>
+      </div>
+      <div class="analogy-card">
+        <div class="term"><span class="material-symbols-outlined">science</span>Testnet</div>
+        <div class="plain">A practice copy of the notebook, using fake play money you get for free. Perfect for learning and testing before anything real is on the line.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="models">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">alt_route</span> The first decision</div>
+    <h2>Attestation ledger vs. real on-chain escrow</h2>
+    <p class="lead">This is the biggest decision — it decides how much changes for donors, and how much risk is involved. For learning and for a first working version, the left option is the easier one to understand and build.</p>
+    <div class="compare-grid">
+      <div class="opt-card recommended">
+        <span class="opt-tag">Easier to understand — start here</span>
+        <h4>Attestation ledger</h4>
+        <div class="analogy-line">Like getting a stamped, tamper-proof receipt for something that already happened off-chain.</div>
+        <p style="font-size:13.5px; color:var(--text-muted); margin:.3rem 0 0;">Donors still pay by bKash/Nagad/bank exactly like today. The blockchain just permanently records <em>proof that each step happened</em> — not the money itself.</p>
+        <ul>
+          <li>No donor wallets needed — nothing changes for them</li>
+          <li>Cheap: a few cents (or less) of gas per admin approval</li>
+          <li>Matches the app's current design almost exactly</li>
+          <li>Small, easy-to-read contract — good for a first project</li>
+        </ul>
+      </div>
+      <div class="opt-card">
+        <span class="opt-tag">Bigger, harder project</span>
+        <h4>Real on-chain escrow</h4>
+        <div class="analogy-line">Like putting money in a vending machine that only opens when the rules say so.</div>
+        <p style="font-size:13.5px; color:var(--text-muted); margin:.3rem 0 0;">Donors send actual crypto to the smart contract itself, which holds and releases the money automatically — code enforces the escrow, not just a database flag.</p>
+        <ul>
+          <li>Donors need a crypto wallet — a real change for them</li>
+          <li>Real money at risk — should be security-reviewed first</li>
+          <li>More Solidity concepts to learn (transfers, reentrancy, etc.)</li>
+          <li>A natural "phase two" once phase one is working</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="network">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">hub</span> Second decision</div>
+    <h2>Ethereum vs. Polygon — and why it barely matters yet</h2>
+    <p class="lead">
+      Good instinct bringing up Ethereum — it's the original smart-contract blockchain, and every
+      network below "speaks the same language" it invented. The code you write, the wallet you use
+      (MetaMask), and the programming language (Solidity) are <strong>identical</strong> across all of
+      them. The only thing that changes between networks is one setting: which address you connect to.
+    </p>
+    <div class="callout gold">
+      <span class="material-symbols-outlined">school</span>
+      <div>So nothing is "wasted" by practicing on a cheaper network first — you're learning real
+      Ethereum-family skills the whole time. Moving your finished contract to Ethereum mainnet later
+      is a one-line change, not a rewrite.</div>
+    </div>
+    <div class="card pad">
+      <table class="netw">
+        <tr><th>Network</th><th>Cost per approval</th><th>Best for</th></tr>
+        <tr>
+          <td>Ethereum Sepolia <span class="rowtag gold">Ethereum's own testnet</span></td>
+          <td>Free (test tokens from a faucet)</td>
+          <td>Practicing on the actual Ethereum network your teacher mentioned, at zero cost</td>
+        </tr>
+        <tr>
+          <td>Polygon Amoy <span class="rowtag">cheapest to go live on</span></td>
+          <td>Free while testing</td>
+          <td>Same tools, but the real (mainnet) version later is far cheaper than Ethereum</td>
+        </tr>
+        <tr>
+          <td>Ethereum mainnet</td>
+          <td>$2–30+ per transaction (varies)</td>
+          <td>The "real," most recognized chain — worth it if cost isn't the priority</td>
+        </tr>
+        <tr>
+          <td>Polygon mainnet</td>
+          <td>~$0.001–0.01 per transaction</td>
+          <td>Frequent small approvals like this app makes, without the cost adding up</td>
+        </tr>
+      </table>
+    </div>
+    <div class="callout info" style="margin-top:1rem;">
+      <span class="material-symbols-outlined">balance</span>
+      <div><strong>A sensible path:</strong> learn and test on <strong>Ethereum Sepolia</strong> since
+      that's the network your course is likely referencing — everything you learn transfers directly.
+      When it's time to actually go live with real donations, most student and small-nonprofit projects
+      then choose <strong>Polygon mainnet</strong> purely because approving hundreds of donations on
+      real Ethereum would get expensive fast. You can always decide that part later.</div>
+    </div>
+  </section>
+
+  <section id="needed">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">checklist</span> Whenever you're ready</div>
+    <h2>What I'll need from you before building anything</h2>
+    <p class="lead">No rush — this is just so you know what's coming. Nothing below needs to happen today.</p>
+    <div class="card">
+      <div class="checklist">
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">Your choice on the two decisions above</div><div class="d">Attestation vs. escrow, and which testnet to start on — or just say "go with your recommendation."</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">An RPC endpoint (a free URL + key)</div><div class="d">From <a href="https://www.alchemy.com" target="_blank" style="color:var(--chain);">Alchemy</a> or <a href="https://www.infura.io" target="_blank" style="color:var(--chain);">Infura</a> — sign up free, choose "Sepolia" or "Polygon Amoy" as the network. Takes about 2 minutes.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">A wallet address to act as "admin"</div><div class="d">Install <a href="https://metamask.io" target="_blank" style="color:var(--chain);">MetaMask</a> (a free browser extension), create a wallet, copy the public address (starts with 0x...). This is the account that deploys the contract and approves things.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">Free test funds in that wallet</div><div class="d">Paste your wallet address into a faucet website (a free one exists for every testnet) to receive fake test currency for gas.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="security">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">shield_lock</span> Non-negotiable</div>
+    <h2>Security rules for this project</h2>
+    <div class="callout danger">
+      <span class="material-symbols-outlined">gpp_maybe</span>
+      <div><strong>Never paste a private key or wallet seed phrase into any chat, ever.</strong>
+      A private key is the actual ability to spend the money in that wallet — anyone who sees it can
+      take everything. No legitimate tool will ever need you to type it into a conversation.</div>
+    </div>
+    <div class="callout warn">
+      <span class="material-symbols-outlined">warning</span>
+      <div>Instead: keys live in a local <code>.env</code> file on your own computer, and you run the
+      deployment commands yourself in a terminal. I'll write the script and give you the exact
+      commands to type.</div>
+    </div>
+    <div class="callout info">
+      <span class="material-symbols-outlined">verified_user</span>
+      <div>Always build and test on a <strong>testnet</strong> first, with fake money. Only move to a
+      real network once you've approved a few test donations end-to-end and everything looks right.</div>
+    </div>
+  </section>
+
+  <section id="contract">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">description</span> A preview</div>
+    <h2>The smart contract (attestation model)</h2>
+    <p class="lead">A short, readable Solidity contract with one function per trust event. Each function just writes a permanent, public log entry — it never touches any money.</p>
+    <div class="card pad">
+      <div class="codebox">
+<span class="cm">// SPDX-License-Identifier: MIT</span><br>
+<span class="c2">pragma</span> solidity ^0.8.24;<br><br>
+<span class="c2">contract</span> <span class="c3">TrustFundLedger</span> {<br>
+&nbsp;&nbsp;<span class="c2">address public</span> admin;<br><br>
+&nbsp;&nbsp;<span class="c2">event</span> <span class="c4">DonationRecorded</span>(<span class="c2">uint256 indexed</span> campaignId, <span class="c2">uint256</span> amount, <span class="c2">address</span> donor, <span class="c2">string</span> offchainTxId);<br>
+&nbsp;&nbsp;<span class="c2">event</span> <span class="c4">ProofRecorded</span>(<span class="c2">uint256 indexed</span> campaignId, <span class="c2">string</span> proofHash);<br>
+&nbsp;&nbsp;<span class="c2">event</span> <span class="c4">WithdrawalRecorded</span>(<span class="c2">uint256 indexed</span> campaignId, <span class="c2">uint256</span> amount);<br><br>
+&nbsp;&nbsp;<span class="c2">modifier</span> onlyAdmin() { <span class="c2">require</span>(msg.sender == admin, <span class="c1">"Not authorized"</span>); _; }<br>
+&nbsp;&nbsp;<span class="c2">constructor</span>() { admin = msg.sender; }<br><br>
+&nbsp;&nbsp;<span class="c2">function</span> <span class="c3">recordDonation</span>(...) <span class="c2">external</span> onlyAdmin { <span class="c2">emit</span> DonationRecorded(...); }<br>
+&nbsp;&nbsp;<span class="c2">function</span> <span class="c3">recordProof</span>(...) <span class="c2">external</span> onlyAdmin { <span class="c2">emit</span> ProofRecorded(...); }<br>
+&nbsp;&nbsp;<span class="c2">function</span> <span class="c3">recordWithdrawal</span>(...) <span class="c2">external</span> onlyAdmin { <span class="c2">emit</span> WithdrawalRecorded(...); }<br>
+}
+      </div>
+    </div>
+    <div class="callout ok" style="margin-top:1rem;">
+      <span class="material-symbols-outlined">visibility</span>
+      <div>Because these are public <code>event</code>s, anyone can look up the full history of any
+      campaign directly on the blockchain — with no dependency on your server staying online, or
+      honest.</div>
+    </div>
+  </section>
+
+  <section id="pyside">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">terminal</span> The other half</div>
+    <h2>What changes in the Python app</h2>
+    <p class="lead">Only one file changes when the time comes. Everything else — routes, templates, the trust score — is untouched.</p>
+    <div class="card pad">
+      <div class="codebox">
+<span class="cm"># .env  (stays on your computer only, never shared)</span><br>
+RPC_URL=https://eth-sepolia.g.alchemy.com/v2/&lt;your-key&gt;<br>
+PRIVATE_KEY=&lt;your admin wallet's private key&gt;<br>
+CONTRACT_ADDRESS=0x...<br><br>
+<span class="cm"># ledger.py — record_event() gets a real body</span><br>
+<span class="c2">from</span> web3 <span class="c2">import</span> Web3<br>
+w3 = Web3(Web3.HTTPProvider(RPC_URL))<br>
+contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
+<span class="c2">def</span> <span class="c3">record_event</span>(event_type, payload):<br>
+&nbsp;&nbsp;tx = contract.functions.recordDonation(...).build_transaction({...})<br>
+&nbsp;&nbsp;signed = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)<br>
+&nbsp;&nbsp;tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)<br>
+&nbsp;&nbsp;<span class="c2">return</span> tx_hash.hex()
+      </div>
+    </div>
+  </section>
+
+  <section id="rollout">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">route</span> Plan</div>
+    <h2>How this will roll out, once you're ready</h2>
+    <div class="card">
+      <div class="timeline">
+        <div class="tl-item now">
+          <div class="tl-rail"><div class="tl-dot">1</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">You read this guide and pick your options</div><div class="detail">No deadline — revisit it whenever the blockchain part feels ready to tackle.</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">2</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">I write the contract + a deploy script</div><div class="detail">You run the deploy command yourself, on the testnet, with your own key.</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">3</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">I rewire <code>ledger.py</code></div><div class="detail">Approvals now write to the testnet contract instead of the local JSON file.</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">4</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">We test the full flow together</div><div class="detail">Donate → approve → look up the transaction and see it for yourself.</div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-rail"><div class="tl-dot">5</div></div>
+          <div class="tl-content"><div class="title">Move to a real network, only when you choose to</div><div class="detail">Same contract, same code — just a different network setting and a small amount of real currency for gas.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="costs">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">payments</span> Budget</div>
+    <h2>What this costs to run, later</h2>
+    <div class="card pad">
+      <p style="margin:0 0 .75rem; font-size:14px;">While testing, everything is free. Once live on a real network, each admin approval is one small transaction:</p>
+      <ul style="font-size:13.8px; color:var(--text-muted); margin:0; padding-left:1.2rem;">
+        <li>On Ethereum mainnet: roughly <strong>$2–30+</strong> per approval, depending on network traffic</li>
+        <li>On Polygon mainnet: roughly <strong>$0.001–0.01</strong> per approval</li>
+        <li>One-time contract deployment is a similar order of magnitude, paid once</li>
+        <li>The free tier of Alchemy/Infura comfortably covers a project like this</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="glossary">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">translate</span> Reference</div>
+    <h2>Glossary</h2>
+    <div class="card pad">
+      <dl class="glossary">
+        <dt>RPC URL</dt><dd>The web address your app uses to "talk to" the blockchain network — like an API endpoint for the notebook.</dd>
+        <dt>ABI</dt><dd>A small file describing what functions a smart contract has, so other code knows how to call it.</dd>
+        <dt>Transaction hash (tx hash)</dt><dd>A unique ID for one entry written to the blockchain — like a receipt number anyone can look up.</dd>
+        <dt>Mainnet</dt><dd>The real, live network where transactions use real money.</dd>
+        <dt>Faucet</dt><dd>A free website that sends small amounts of test currency to a wallet address, for practicing on a testnet.</dd>
+        <dt>MetaMask</dt><dd>The most common wallet app — a browser extension that stores your keys and lets you approve transactions.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <footer>TrustFundBD — blockchain integration guide · no code has been built yet, this is the plan</footer>
+
+</div></div>
+</body>
+</html>

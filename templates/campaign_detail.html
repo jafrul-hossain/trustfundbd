@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% from "_partials.html" import status_badge, trust_badge, progress_bar %}
+{% block title %}{{ campaign.title }} — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+  <!-- ─── Left column ──────────────────────────────────────── -->
+  <div class="lg:col-span-8 space-y-10">
+
+    <section class="space-y-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="px-3 py-1 bg-[#d0e9d2] text-[#005027] text-xs font-bold uppercase tracking-widest rounded">{{ campaign.category }}</span>
+        {{ status_badge(campaign.status) }}
+      </div>
+
+      <h1 class="font-headline text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">{{ campaign.title }}</h1>
+
+      <div class="rounded-2xl overflow-hidden shadow-lg bg-[#e8e8e6] h-80 flex items-center justify-center">
+        {% if campaign.image_url %}
+          <img src="{{ campaign.image_url }}" class="w-full h-full object-cover" alt="">
+        {% else %}
+          <span class="material-symbols-outlined text-[#bbcbbb]" style="font-size:64px">image</span>
+        {% endif %}
+      </div>
+      {% set extra_images = campaign.additional_images() %}
+      {% if extra_images %}
+        <div class="grid grid-cols-4 gap-3">
+          {% for img in extra_images %}
+            <img src="{{ img }}" class="h-20 w-full object-cover rounded-lg" alt="">
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="p-8 bg-white rounded-2xl shadow-ambient space-y-6">
+        <div class="flex justify-between items-end flex-wrap gap-2">
+          <div>
+            <span class="text-4xl font-headline font-bold text-[#006d37]">{{ campaign.collected_amount|amount }}</span>
+            <span class="text-[#5f5e5e] font-medium ml-2">raised of {{ campaign.goal_amount|amount }} goal</span>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl font-bold">{{ campaign.progress_percent() }}%</span>
+            <p class="text-xs text-[#5f5e5e] uppercase tracking-widest">Funded</p>
+          </div>
+        </div>
+        {{ progress_bar(campaign.progress_percent(), thick=True) }}
+        <div class="flex flex-wrap gap-8 border-t border-[#f4f4f2] pt-6">
+          <div><p class="text-xs text-[#5f5e5e] uppercase tracking-widest">Goal</p><p class="text-xl font-bold">{{ campaign.goal_amount|amount }}</p></div>
+          <div><p class="text-xs text-[#5f5e5e] uppercase tracking-widest">Released</p><p class="text-xl font-bold">{{ campaign.released_amount|amount }}</p></div>
+          <div><p class="text-xs text-[#5f5e5e] uppercase tracking-widest">In Escrow</p><p class="text-xl font-bold text-[#006d37]">{{ campaign.remaining_in_escrow()|amount }}</p></div>
+          <div><p class="text-xs text-[#5f5e5e] uppercase tracking-widest">Proofs</p><p class="text-xl font-bold">{{ campaign.approved_proofs }}</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fund flow -->
+    <section class="bg-[#f4f4f2] p-8 rounded-2xl space-y-6">
+      <h3 class="font-headline text-xl font-bold">Trust-Mapped Fund Flow</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm"><span class="text-[#5f5e5e]">Total Collected</span><span class="font-bold">{{ campaign.collected_amount|amount }}</span></div>
+          <div class="h-2 w-full bg-[#e2e3e1] rounded-full overflow-hidden"><div class="bg-[#006d37] h-full" style="width:100%"></div></div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm"><span class="text-[#5f5e5e]">Released to Creator</span><span class="font-bold">{{ campaign.released_amount|amount }}</span></div>
+          <div class="h-2 w-full bg-[#e2e3e1] rounded-full overflow-hidden">
+            <div class="bg-[#2ecc71] h-full" style="width: {{ (campaign.released_amount / campaign.collected_amount * 100) if campaign.collected_amount else 0 }}%"></div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm"><span class="text-[#5f5e5e]">Remaining in Escrow</span><span class="font-bold">{{ campaign.remaining_in_escrow()|amount }}</span></div>
+          <div class="h-2 w-full bg-[#e2e3e1] rounded-full overflow-hidden">
+            <div class="bg-[#a1b9a4] h-full" style="width: {{ (campaign.remaining_in_escrow() / campaign.collected_amount * 100) if campaign.collected_amount else 0 }}%"></div>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#3d4a3e] leading-relaxed">TrustFundBD acts as a fiduciary intermediary. Funds are released only upon verified proof review by our admin team.</p>
+    </section>
+
+    <!-- Description -->
+    <section class="bg-white rounded-2xl p-8 shadow-ambient">
+      <h3 class="font-headline text-2xl font-bold mb-4">About This Campaign</h3>
+      <p class="text-[#5f5e5e] leading-relaxed whitespace-pre-line">{{ campaign.description }}</p>
+
+      {% if edits %}
+        <div class="mt-8 pt-6 border-t border-[#f4f4f2]">
+          <h4 class="font-semibold text-sm mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#006d37]" style="font-size:18px">history</span>
+            Transparency: Description Edit History
+          </h4>
+          <div class="space-y-2">
+            {% for edit in edits %}
+              <div class="text-xs text-[#5f5e5e] bg-[#f4f4f2] p-3 rounded-lg border border-[#e8e8e6]">
+                <strong>Updated on {{ (edit.reviewed_at or edit.created_at)|dateonly }}:</strong>
+                The campaign creator submitted a revision to the description, which was verified and approved by the TrustFundBD Admin Panel.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- Proof timeline -->
+    {% if proofs %}
+      <section class="space-y-6">
+        <h3 class="font-headline text-2xl font-bold">Verified Proof Timeline</h3>
+        <div class="relative ml-4 border-l-2 border-[#2ecc71]/30 pl-10 space-y-10">
+          {% for proof in proofs %}
+            <div class="relative">
+              <div class="absolute -left-[51px] top-0 w-5 h-5 rounded-full border-4 border-white shadow-sm {{ 'bg-[#006d37]' if loop.first else 'bg-[#2ecc71]' }}"></div>
+              <div class="space-y-3">
+                <span class="bg-[#a1b9a4] text-[#354a39] text-[10px] px-2 py-1 uppercase tracking-widest font-bold">{{ proof.created_at|dateonly }}</span>
+                <h4 class="font-headline text-lg font-bold mt-2">{{ proof.title }}</h4>
+                <p class="text-[#5f5e5e] text-sm leading-relaxed">{{ proof.description }}</p>
+                {% if proof.file_url %}
+                  <div class="bg-white p-4 rounded-xl border border-[rgba(187,203,187,0.3)] flex items-center gap-4">
+                    <span class="material-symbols-outlined text-[#006d37] text-3xl">description</span>
+                    <div class="flex-1">
+                      <p class="text-sm font-bold">Proof Document</p>
+                      <p class="text-xs text-[#5f5e5e]">Verified by TrustFundBD Admin{% if proof.tx_hash %} · Ledger ref: <code>{{ proof.tx_hash }}</code>{% endif %}</p>
+                    </div>
+                    <a href="{{ proof.file_url }}" target="_blank"><span class="material-symbols-outlined text-[#5f5e5e] hover:text-[#006d37]">download</span></a>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% else %}
+      <section class="bg-[#ffdad6]/30 border border-[#ffdad6] rounded-2xl p-6">
+        <div class="flex items-center gap-3 text-[#93000a]">
+          <span class="material-symbols-outlined">warning</span>
+          <p class="text-sm font-semibold">No approved proofs yet. Donations are held in escrow until proofs are submitted.</p>
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Recent donations -->
+    {% if donations %}
+      <section class="space-y-6">
+        <h3 class="font-headline text-2xl font-bold">Recent Donations</h3>
+        <div class="space-y-4">
+          {% for donation in donations %}
+            <div class="bg-white p-5 rounded-xl shadow-ambient flex gap-4 items-start">
+              <div class="w-10 h-10 rounded-full bg-[#e8e8e6] flex items-center justify-center font-bold text-[#006d37] text-sm flex-shrink-0">
+                {{ donation.donor.initials() }}
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-center mb-1">
+                  <h5 class="font-bold text-sm">{{ donation.donor.name }}</h5>
+                  <span class="text-[#006d37] font-bold text-sm">+{{ donation.amount|amount }}</span>
+                </div>
+                <p class="text-xs text-[#5f5e5e]">via {{ PAYMENT_LABELS[donation.payment_method] }} · {{ donation.created_at|timeago }}</p>
+                {% if donation.message %}
+                  <div class="mt-2 text-sm text-[#3d4a3e] bg-[#f4f4f2]/50 p-3 rounded-lg border-l-2 border-[#006d37] italic">"{{ donation.message }}"</div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+
+  <!-- ─── Right column (sticky) ────────────────────────────── -->
+  <div class="lg:col-span-4">
+    <div class="sticky top-24 space-y-6">
+
+      <!-- Trust protocol box -->
+      <div class="bg-[#1a1c1b] text-white p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 opacity-5"><span class="material-symbols-outlined" style="font-size:140px">verified</span></div>
+        <div class="flex justify-between items-center mb-6">
+          <h4 class="font-headline font-bold text-lg">Trust Protocol</h4>
+          <div class="bg-[#2ecc71]/20 text-[#2ecc71] px-3 py-1 rounded text-xs font-bold uppercase">{{ campaign.status }}</div>
+        </div>
+        <div class="space-y-4 mb-6 text-sm font-medium text-white/80">
+          <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[#2ecc71]" style="font-size:20px">verified_user</span>{{ 'Verified Creator' if campaign.creator.verified else 'Identity Pending Verification' }}</div>
+          <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[#2ecc71]" style="font-size:20px">account_balance</span>Fiduciary Escrow Protected</div>
+          <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[#2ecc71]" style="font-size:20px">history</span>{{ 'Last Update: ' + (campaign.last_update_at|timeago) if campaign.last_update_at else 'No updates yet' }}</div>
+          <div class="flex items-center gap-3"><span class="material-symbols-outlined text-[#2ecc71]" style="font-size:20px">receipt_long</span>{{ campaign.approved_proofs }} Approved Proofs</div>
+        </div>
+        <div class="pt-6 border-t border-white/10 flex items-center justify-between">
+          <div><p class="text-[10px] text-white/40 uppercase tracking-widest">Trust Score</p><p class="text-4xl font-headline font-extrabold text-[#2ecc71]">{{ campaign.trust_score }}%</p></div>
+          {{ trust_badge(campaign.trust_score) }}
+        </div>
+      </div>
+
+      <!-- Creator panel -->
+      <div class="bg-white p-6 rounded-2xl shadow-ambient space-y-5">
+        <h4 class="font-headline font-bold border-b border-[#f4f4f2] pb-4">Campaign Creator</h4>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-full bg-[#e5e2e1] flex items-center justify-center font-bold text-[#006d37] text-lg">{{ campaign.creator.initials() }}</div>
+          <div>
+            <div class="flex items-center gap-1">
+              <span class="font-bold">{{ campaign.creator.name }}</span>
+              {% if campaign.creator.verified %}<span class="material-symbols-outlined text-[#006d37]" style="font-size:16px">verified</span>{% endif %}
+            </div>
+            <p class="text-xs text-[#5f5e5e]">{{ 'Certified Creator' if campaign.creator.verified else 'Pending Verification' }}</p>
+          </div>
+        </div>
+        <div class="bg-[#f4f4f2] p-4 rounded-xl flex items-center gap-3">
+          <span class="material-symbols-outlined text-[#006d37]">workspace_premium</span>
+          <p class="text-xs font-semibold leading-snug">Member since {{ campaign.creator.created_at|dateonly }}</p>
+        </div>
+        {% if campaign.contact_phone or campaign.contact_email or campaign.contact_facebook or campaign.contact_whatsapp %}
+          <div class="space-y-2 text-sm">
+            {% if campaign.contact_phone %}<p class="flex items-center gap-2"><span class="material-symbols-outlined text-[#5f5e5e]" style="font-size:16px">call</span> {{ campaign.contact_phone }}</p>{% endif %}
+            {% if campaign.contact_whatsapp %}<p class="flex items-center gap-2"><span class="material-symbols-outlined text-[#5f5e5e]" style="font-size:16px">chat</span> {{ campaign.contact_whatsapp }} (WhatsApp)</p>{% endif %}
+            {% if campaign.contact_email %}<p class="flex items-center gap-2"><span class="material-symbols-outlined text-[#5f5e5e]" style="font-size:16px">mail</span> {{ campaign.contact_email }}</p>{% endif %}
+            {% if campaign.contact_facebook %}<p class="flex items-center gap-2"><span class="material-symbols-outlined text-[#5f5e5e]" style="font-size:16px">public</span> {{ campaign.contact_facebook }}</p>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Donation form -->
+      {% if campaign.status == 'active' %}
+        {% if g.user %}
+          <div class="bg-white p-6 rounded-2xl shadow-ambient space-y-5">
+            <h4 class="font-headline font-bold text-lg">Support this Campaign</h4>
+            <form method="post" action="{{ url_for('donate', campaign_id=campaign.id) }}" class="space-y-5">
+              {{ csrf_field() }}
+              <div>
+                <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Amount (BDT)</label>
+                <div class="grid grid-cols-4 gap-2 mb-3">
+                  {% for a in QUICK_AMOUNTS %}
+                    <button type="button" onclick="document.getElementById('donate-amount').value={{ a }}"
+                            class="py-2 rounded-xl text-sm font-bold bg-[#f4f4f2] text-[#5f5e5e] hover:bg-[#e8e8e6] transition-all">
+                      {{ a|amount }}
+                    </button>
+                  {% endfor %}
+                </div>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-[#5f5e5e]">৳</span>
+                  <input id="donate-amount" type="number" name="amount" value="1000" min="10" required
+                         class="w-full pl-8 pr-4 py-3 bg-[#f4f4f2] rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#006d37]/30">
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Payment Method</label>
+                <div class="grid grid-cols-3 gap-2">
+                  {% for m, label in PAYMENT_LABELS.items() %}
+                    <label class="cursor-pointer">
+                      <input type="radio" name="payment_method" value="{{ m }}" class="hidden peer" {{ 'checked' if m == 'bkash' else '' }}>
+                      <div class="py-3 px-2 rounded-xl text-xs font-bold text-center bg-[#f4f4f2] text-[#5f5e5e] peer-checked:bg-[#1a1c1b] peer-checked:text-white transition-all">{{ label }}</div>
+                    </label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="bg-[#1a1c1b] text-white p-4 rounded-xl text-xs space-y-1">
+                <p class="flex items-center gap-2"><span class="material-symbols-outlined text-[#2ecc71]" style="font-size:16px">info</span> Send the amount via your chosen method, then paste the transaction ID below.</p>
+                <p class="text-white/60">bKash: {{ PAYMENT_NUMBERS['bkash'] }} · Nagad: {{ PAYMENT_NUMBERS['nagad'] }} · Bank: {{ PAYMENT_NUMBERS['bank'] }}</p>
+              </div>
+
+              <div>
+                <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Transaction ID *</label>
+                <input type="text" name="transaction_id" required placeholder="e.g. 8J2K9X4M5N"
+                       class="w-full px-4 py-3 bg-[#f4f4f2] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30">
+              </div>
+
+              <div>
+                <label class="text-xs font-semibold text-[#5f5e5e] uppercase tracking-widest block mb-2">Public Note (optional)</label>
+                <textarea name="message" rows="2" maxlength="200" placeholder="Keep up the good work!"
+                          class="w-full px-4 py-3 bg-[#f4f4f2] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#006d37]/30 resize-none"></textarea>
+              </div>
+
+              <button type="submit" class="w-full py-4 btn-gradient text-white font-bold rounded-full shadow-sm hover:opacity-90 active:scale-95 transition-all">Submit Donation</button>
+            </form>
+          </div>
+        {% else %}
+          <div class="bg-white p-6 rounded-2xl shadow-ambient text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-[#e8e8e6] flex items-center justify-center mx-auto text-[#5f5e5e]"><span class="material-symbols-outlined">lock</span></div>
+            <h5 class="font-headline font-bold">Sign in to Donate</h5>
+            <p class="text-sm text-[#5f5e5e]">You must be logged in to securely support campaigns.</p>
+            <a href="{{ url_for('login') }}" class="inline-block px-6 py-2.5 btn-gradient text-white text-sm font-bold rounded-full">Sign In to Continue</a>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="bg-[#f4f4f2] p-6 rounded-2xl text-center">
+          <span class="material-symbols-outlined text-[#5f5e5e]" style="font-size:32px">block</span>
+          <p class="text-sm text-[#5f5e5e] mt-2 font-medium">This campaign is not accepting donations right now.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
