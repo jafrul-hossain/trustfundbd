@@ -299,6 +299,7 @@
     <a href="#trust">Trust score logic</a>
     <a href="#blockchain">Blockchain hook</a>
     <a href="#wireframes">Page wireframes</a>
+    <a href="#download">Getting the code</a>
     <a href="#run">Running it</a>
   </nav>
 </aside>
@@ -309,12 +310,14 @@
   <div class="hero">
     <div class="eyebrow">Architecture &amp; workflow guide</div>
     <h1>TrustFundBD — Python edition</h1>
-    <p>A plain Flask + SQLite rewrite of the crowdfunding platform, built so the code
-       is easy to read and ready to plug into a real blockchain.</p>
+    <p>A plain Flask rewrite of the crowdfunding platform, built so the code is easy to
+       read, runs on local SQLite with zero setup, and switches automatically to a
+       Supabase Postgres database when deployed on Vercel.</p>
     <div class="badges">
       <span class="badge">Flask</span>
-      <span class="badge">SQLAlchemy + SQLite</span>
+      <span class="badge">SQLAlchemy (SQLite / Postgres)</span>
       <span class="badge">Jinja templates</span>
+      <span class="badge">Supabase + Vercel ready</span>
       <span class="badge">Blockchain-ready ledger</span>
     </div>
   </div>
@@ -342,7 +345,9 @@
       </div>
       <div class="file-card">
         <div class="file-head"><span class="material-symbols-outlined">database</span><span class="name">models.py</span></div>
-        <div class="desc">6 database tables — User, Campaign, Donation, Proof, CampaignEdit, WithdrawRequest.</div>
+        <div class="desc">6 database tables — User, Campaign, Donation, Proof, CampaignEdit, WithdrawRequest. Points at
+        local SQLite by default, or a Postgres schema named <code>pyapp</code> on Supabase when a
+        <code>DATABASE_URL</code> env var is set — same code, no changes needed either way.</div>
       </div>
       <div class="file-card">
         <div class="file-head"><span class="material-symbols-outlined">verified</span><span class="name">trust.py</span></div>
@@ -354,19 +359,28 @@
       </div>
       <div class="file-card">
         <div class="file-head"><span class="material-symbols-outlined">description</span><span class="name">templates/</span></div>
-        <div class="desc">18 server-rendered HTML pages (Jinja2), Tailwind CDN for styling.</div>
+        <div class="desc">19 server-rendered HTML pages (Jinja2), Tailwind CDN for styling.</div>
       </div>
       <div class="file-card">
         <div class="file-head"><span class="material-symbols-outlined">folder_zip</span><span class="name">static/uploads/</span></div>
-        <div class="desc">Campaign images and proof documents, saved to local disk.</div>
+        <div class="desc">Campaign images and proof documents. Saved to local disk during development;
+        automatically uploaded to a public Supabase Storage bucket instead when deployed, since
+        Vercel's serverless functions have no persistent filesystem.</div>
       </div>
       <div class="file-card">
         <div class="file-head"><span class="material-symbols-outlined">storage</span><span class="name">trustfundbd.db</span></div>
-        <div class="desc">SQLite file, created automatically the first time you run the app.</div>
+        <div class="desc">SQLite file, created automatically the first time you run the app locally. Not used
+        at all when <code>DATABASE_URL</code> is set — Postgres takes over instead.</div>
       </div>
       <div class="file-card chain">
         <div class="file-head"><span class="material-symbols-outlined">receipt_long</span><span class="name">chain_ledger.json</span></div>
         <div class="desc">The stand-in "chain" — an append-only log of trust events.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">cloud_upload</span><span class="name">vercel.json / .vercelignore / .python-version</span></div>
+        <div class="desc">Deployment config for Vercel — keeps the build bundle small and pins the Python
+        version. Vercel auto-detects <code>app.py</code>'s Flask <code>app</code> object; no extra
+        entry-point file is needed.</div>
       </div>
     </div>
   </section>
@@ -381,7 +395,7 @@
         <div class="arrow">→</div>
         <div class="node"><div class="t">app.py route</div><div class="s">reads the request</div></div>
         <div class="arrow">→</div>
-        <div class="node"><div class="t">models.py</div><div class="s">reads / writes SQLite</div></div>
+        <div class="node"><div class="t">models.py</div><div class="s">reads / writes the DB</div></div>
         <div class="arrow">→</div>
         <div class="node"><div class="t">Jinja template</div><div class="s">renders full HTML</div></div>
         <div class="arrow">→</div>
@@ -390,7 +404,10 @@
       <div class="flow-note">
         <span class="material-symbols-outlined">bolt</span>
         <div>On the three approval routes, <code>app.py</code> also calls <code>trust.py</code> to
-        rescore the campaign and <code>ledger.py</code> to record the event — before the page renders.</div>
+        rescore the campaign and <code>ledger.py</code> to record the event — before the page renders.
+        "The DB" is local SQLite by default, or Supabase Postgres (schema <code>pyapp</code>) when a
+        <code>DATABASE_URL</code> environment variable is set — <code>models.py</code> switches
+        automatically, so nothing else in this flow changes.</div>
       </div>
     </div>
   </section>
@@ -624,9 +641,47 @@ donation.tx_hash = <span class="c3">record_event</span>(<span class="c1">"donati
     </div>
   </section>
 
+  <section id="download">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">download</span> Getting the code</div>
+    <h2>Downloading the project from GitHub</h2>
+    <p class="lead">The full source lives at
+      <a href="https://github.com/jafrul-hossain/trustfundbd" target="_blank" rel="noopener">github.com/jafrul-hossain/trustfundbd</a>.
+      Two ways to get a copy on your own computer — pick whichever is easier.</p>
+    <div class="file-grid">
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">terminal</span><span class="name">Option A — Git (recommended)</span></div>
+        <div class="desc">
+          If you have <a href="https://git-scm.com/downloads" target="_blank" rel="noopener">Git</a> installed
+          (Git Bash on Windows, or Terminal on Mac/Linux), open it and run:
+        </div>
+      </div>
+      <div class="file-card">
+        <div class="file-head"><span class="material-symbols-outlined">folder_zip</span><span class="name">Option B — Download ZIP</span></div>
+        <div class="desc">
+          No Git needed: on the GitHub page, click the green <strong>Code</strong> button →
+          <strong>Download ZIP</strong> → extract it anywhere on your computer.
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <div>Clone it — <code>git clone https://github.com/jafrul-hossain/trustfundbd.git</code></div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div>Move into the app folder — <code>cd trustfundbd/trustfundbd_python</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="run">
     <div class="kicker"><span class="material-symbols-outlined" style="font-size:16px;">terminal</span> Running it</div>
     <h2>Three commands to get started</h2>
+    <p class="lead">Once you're inside the <code>trustfundbd_python</code> folder (see above), you'll also need
+      <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">Python 3.10+</a> installed.</p>
     <div class="card">
       <div class="steps">
         <div class="step">
@@ -641,6 +696,13 @@ donation.tx_hash = <span class="c3">record_event</span>(<span class="c1">"donati
           <div class="n">3</div>
           <div>Open <code>http://127.0.0.1:5000</code> — the SQLite database is created automatically.</div>
         </div>
+      </div>
+      <div class="flow-note">
+        <span class="material-symbols-outlined">cloud_done</span>
+        <div>To deploy for real: push to GitHub, import the repo on Vercel, and set a
+        <code>DATABASE_URL</code> (Supabase Postgres), <code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>,
+        and <code>SECRET_KEY</code> as environment variables. The app switches from SQLite to Postgres
+        and from local file uploads to Supabase Storage automatically — no code changes needed.</div>
       </div>
     </div>
   </section>

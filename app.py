@@ -47,6 +47,8 @@ from flask import (
 from markupsafe import Markup
 from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.pool import NullPool
+import requests
 
 from models import db, User, Campaign, Donation, Proof, CampaignEdit, WithdrawRequest
 from trust import recalculate_trust_score
@@ -66,10 +68,41 @@ app = Flask(__name__)
 # Before putting this online for real, set a real SECRET_KEY env var —
 # anyone who knows this value could forge a login session.
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me-before-deploying")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "trustfundbd.db")
+
+# DATABASE: uses Supabase Postgres when a DATABASE_URL env var is set (the
+# Vercel deployment); otherwise falls back to a local SQLite file, so the
+# app still runs instantly with zero setup for local development.
+#
+# On Vercel, DATABASE_URL should be Supabase's "Transaction pooler" connection
+# string (port 6543), not the direct database connection (port 5432).
+# Serverless platforms spin up many short-lived processes at once, and the
+# pooler is built to handle that; the direct connection has a small, fixed
+# limit that would get exhausted almost immediately under real traffic.
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        # NullPool: don't keep a local connection pool inside each serverless
+        # instance — let Supabase's own pooler (pgbouncer) do that job.
+        "poolclass": NullPool,
+        "pool_pre_ping": True,
+    }
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "trustfundbd.db")
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload limit
+
+# FILE STORAGE: same idea as the database above. When running against
+# Supabase (DATABASE_URL set), campaign images and proof files go to a
+# public Supabase Storage bucket instead of local disk, since Vercel's
+# filesystem doesn't persist between requests. SUPABASE_URL/SUPABASE_KEY
+# are the project's public API URL and publishable/anon key — safe values
+# to put in a serverless environment, not secret admin credentials.
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+SUPABASE_UPLOAD_BUCKET = "trustfundbd-uploads"
 
 # Session cookie hardening: JS can't read the cookie (HTTPONLY), and it
 # won't be sent along with cross-site requests (SAMESITE=Lax) — a basic,
@@ -186,11 +219,16 @@ def allowed_file(filename):
 
 
 def save_upload(file_storage, subfolder):
-    """Saves an uploaded file under static/uploads/<subfolder>/ and returns
-    the public URL path, or None if nothing valid was uploaded.
+    """Saves an uploaded file and returns its public URL, or None if
+    nothing valid was uploaded.
 
-    This replaces the original app's Supabase Storage bucket with plain
-    local disk storage — simpler, and good enough for a basic app."""
+    Two modes, picked automatically based on DATABASE_URL:
+      - Supabase/Vercel (DATABASE_URL set): uploads to the shared
+        "trustfundbd-uploads" Storage bucket over Supabase's HTTP API,
+        since Vercel's serverless functions have no persistent local disk.
+      - Local development (no DATABASE_URL): saves straight to
+        static/uploads/<subfolder>/ on disk, same as always — zero setup.
+    """
     if not file_storage or file_storage.filename == "":
         return None
     if not allowed_file(file_storage.filename):
@@ -198,10 +236,46 @@ def save_upload(file_storage, subfolder):
 
     filename = secure_filename(file_storage.filename)
     unique_name = f"{int(time.time() * 1000)}_{filename}"
+
+    if DATABASE_URL:
+        return _upload_to_supabase_storage(file_storage, subfolder, unique_name)
+
     folder = os.path.join(app.config["UPLOAD_FOLDER"], subfolder)
     os.makedirs(folder, exist_ok=True)
     file_storage.save(os.path.join(folder, unique_name))
     return f"/static/uploads/{subfolder}/{unique_name}"
+
+
+def _upload_to_supabase_storage(file_storage, subfolder, unique_name):
+    """Uploads one file to the public "trustfundbd-uploads" Supabase
+    Storage bucket and returns its public URL. Only used when DATABASE_URL
+    is set — i.e. the app is running against Supabase, not local SQLite."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        # Misconfigured deployment (env vars not set) — skip the image
+        # rather than crashing the whole request over an upload.
+        return None
+
+    object_path = f"{subfolder}/{unique_name}"
+    content_type = file_storage.mimetype or "application/octet-stream"
+
+    try:
+        response = requests.post(
+            f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_UPLOAD_BUCKET}/{object_path}",
+            headers={
+                "Authorization": f"Bearer {SUPABASE_KEY}",
+                "apikey": SUPABASE_KEY,
+                "Content-Type": content_type,
+            },
+            data=file_storage.read(),
+            timeout=15,
+        )
+    except requests.RequestException:
+        return None
+
+    if response.status_code not in (200, 201):
+        return None
+
+    return f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_UPLOAD_BUCKET}/{object_path}"
 
 
 def format_amount(value):

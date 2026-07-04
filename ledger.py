@@ -11,6 +11,16 @@ Right now, `record_event()` just appends events to a local JSON file
 gets a sequential "transaction hash" and is never edited or deleted, only
 appended to. This keeps the app fully working and easy to read today.
 
+Note: when this app is deployed on Vercel, that JSON file can't actually
+persist — Vercel's serverless functions run on a read-only filesystem, so
+each write silently fails (caught below) and every request effectively
+starts with an empty ledger. The app still works (donations/proofs/
+withdrawals still get approved and tracked in the real database), it's
+only this local stand-in "chain" that has nothing to write to. That's not
+a bug to route around — it's the actual argument for wiring up a real
+blockchain here, since a real chain doesn't care what filesystem your
+server has. See BLOCKCHAIN_GUIDE_BANGLA.html for the full plan.
+
 --------------------------------------------------------------------
 HOW TO PLUG IN A REAL BLOCKCHAIN LATER
 --------------------------------------------------------------------
@@ -71,7 +81,16 @@ def record_event(event_type: str, payload: dict) -> str:
         "timestamp": time.time(),
     })
 
-    with open(LEDGER_FILE, "w") as f:
-        json.dump(events, f, indent=2)
+    try:
+        with open(LEDGER_FILE, "w") as f:
+            json.dump(events, f, indent=2)
+    except OSError:
+        # Deployed on Vercel (or any serverless host), the app's own code
+        # directory is read-only — there's nowhere on disk for this stand-in
+        # ledger to persist to. Don't crash the approval over it; just
+        # return the hash. This is exactly the situation a real blockchain
+        # (see BLOCKCHAIN_GUIDE_BANGLA.html) solves properly: a real chain
+        # doesn't care what filesystem your server has.
+        pass
 
     return tx_hash

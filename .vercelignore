@@ -1,0 +1,15 @@
+# Keep the Vercel deployment lean — none of this is needed to run the app.
+__pycache__/
+*.pyc
+trustfundbd.db
+chain_ledger.json
+static/uploads/*
+!static/uploads/.gitkeep
+.env
+.git/
+
+# Documentation guides — useful in the repo, not needed on the server
+ARCHITECTURE_GUIDE.html
+BLOCKCHAIN_INTEGRATION_GUIDE.html
+BLOCKCHAIN_GUIDE_BANGLA.html
+PROJECT_GUIDE_BANGLA.html

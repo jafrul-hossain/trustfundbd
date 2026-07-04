@@ -4,9 +4,21 @@ models.py — Database tables for TrustFundBD
 
 This is a plain Python / SQLAlchemy version of the original Supabase
 Postgres schema (see supabase/schema.sql in the Next.js project). Same
-tables, same fields, same statuses — just running on a single local
-SQLite file (trustfundbd.db) instead of Supabase, so the whole app is
-easy to run and easy to read.
+tables, same fields, same statuses.
+
+When a DATABASE_URL environment variable is set (the Vercel + Supabase
+deployment), this app shares the same Supabase Postgres project as the
+original Next.js app, but lives entirely inside its own "pyapp" schema
+— see SCHEMA below. That keeps the two apps' tables (which happen to
+have the same names: users, campaigns, donations, ...) from ever
+colliding, so neither app can accidentally read or overwrite the
+other's data.
+
+When DATABASE_URL is NOT set, the app falls back to a local SQLite
+file instead (see app.py) — SQLite has no concept of schemas, so SCHEMA
+is simply switched off in that case, and everything lives in the
+default namespace like before. Either way the rest of this file doesn't
+need to change.
 
 Every table that represents a "trust event" (a donation being verified,
 a proof being approved, funds being released) has a `tx_hash` column.
@@ -15,10 +27,23 @@ ledger.py), each approval will write a transaction hash into that
 column — giving every donor a permanent, checkable receipt.
 """
 
+import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import json
+
+# The dedicated Postgres schema this whole app lives in when running on
+# Supabase. Every model below sets __table_args__ = {"schema": SCHEMA} and
+# every ForeignKey goes through _fk() so it points at the right schema.
+# Left as None for local SQLite runs, where schemas don't apply at all.
+SCHEMA = "pyapp" if os.environ.get("DATABASE_URL") else None
+
+
+def _fk(table_dot_column):
+    """Builds a ForeignKey target, schema-qualified when running on
+    Postgres (SCHEMA set) and plain when running on local SQLite."""
+    return f"{SCHEMA}.{table_dot_column}" if SCHEMA else table_dot_column
 
 db = SQLAlchemy()
 
@@ -29,6 +54,7 @@ db = SQLAlchemy()
 # ---------------------------------------------------------------------------
 class User(db.Model):
     __tablename__ = "users"
+    __table_args__ = {"schema": SCHEMA} if SCHEMA else {}
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
@@ -58,6 +84,7 @@ class User(db.Model):
 # ---------------------------------------------------------------------------
 class Campaign(db.Model):
     __tablename__ = "campaigns"
+    __table_args__ = {"schema": SCHEMA} if SCHEMA else {}
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
@@ -80,7 +107,7 @@ class Campaign(db.Model):
 
     status = db.Column(db.String(20), nullable=False, default="pending")  # pending|active|completed|rejected
 
-    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey(_fk("users.id")), nullable=False)
 
     trust_score = db.Column(db.Integer, nullable=False, default=0)
     approved_proofs = db.Column(db.Integer, nullable=False, default=0)
@@ -127,9 +154,10 @@ class Campaign(db.Model):
 # ---------------------------------------------------------------------------
 class CampaignEdit(db.Model):
     __tablename__ = "campaign_edits"
+    __table_args__ = {"schema": SCHEMA} if SCHEMA else {}
 
     id = db.Column(db.Integer, primary_key=True)
-    campaign_id = db.Column(db.Integer, db.ForeignKey("campaigns.id"), nullable=False)
+    campaign_id = db.Column(db.Integer, db.ForeignKey(_fk("campaigns.id")), nullable=False)
     old_description = db.Column(db.Text, nullable=False)
     new_description = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), nullable=False, default="pending")  # pending|approved|rejected
@@ -143,10 +171,11 @@ class CampaignEdit(db.Model):
 # ---------------------------------------------------------------------------
 class Donation(db.Model):
     __tablename__ = "donations"
+    __table_args__ = {"schema": SCHEMA} if SCHEMA else {}
 
     id = db.Column(db.Integer, primary_key=True)
-    campaign_id = db.Column(db.Integer, db.ForeignKey("campaigns.id"), nullable=False)
-    donor_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    campaign_id = db.Column(db.Integer, db.ForeignKey(_fk("campaigns.id")), nullable=False)
+    donor_id = db.Column(db.Integer, db.ForeignKey(_fk("users.id")), nullable=False)
 
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(20), nullable=False)  # bkash|nagad|bank
@@ -169,9 +198,10 @@ class Donation(db.Model):
 # ---------------------------------------------------------------------------
 class Proof(db.Model):
     __tablename__ = "proofs"
+    __table_args__ = {"schema": SCHEMA} if SCHEMA else {}
 
     id = db.Column(db.Integer, primary_key=True)
-    campaign_id = db.Column(db.Integer, db.ForeignKey("campaigns.id"), nullable=False)
+    campaign_id = db.Column(db.Integer, db.ForeignKey(_fk("campaigns.id")), nullable=False)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=False)
     file_url = db.Column(db.String(255), nullable=True)
@@ -189,11 +219,12 @@ class Proof(db.Model):
 # ---------------------------------------------------------------------------
 class WithdrawRequest(db.Model):
     __tablename__ = "withdraw_requests"
+    __table_args__ = {"schema": SCHEMA} if SCHEMA else {}
 
     id = db.Column(db.Integer, primary_key=True)
-    campaign_id = db.Column(db.Integer, db.ForeignKey("campaigns.id"), nullable=False)
+    campaign_id = db.Column(db.Integer, db.ForeignKey(_fk("campaigns.id")), nullable=False)
     requested_amount = db.Column(db.Float, nullable=False)
-    proof_id = db.Column(db.Integer, db.ForeignKey("proofs.id"), nullable=False)
+    proof_id = db.Column(db.Integer, db.ForeignKey(_fk("proofs.id")), nullable=False)
 
     status = db.Column(db.String(20), nullable=False, default="pending")  # pending|approved|rejected
     admin_note = db.Column(db.String(255), nullable=True)

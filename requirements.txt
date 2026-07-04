@@ -1,3 +1,8 @@
 Flask==3.0.3
 Flask-SQLAlchemy==3.1.1
 Werkzeug==3.0.3
+requests==2.32.3
+
+# Needed only for the Supabase/Vercel deployment (Postgres). Not needed
+# for local development, which falls back to SQLite automatically.
+psycopg2-binary==2.9.10

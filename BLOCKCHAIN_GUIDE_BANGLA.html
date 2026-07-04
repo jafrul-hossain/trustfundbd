@@ -22,6 +22,7 @@
   body { margin:0; font-family:'Noto Sans Bengali','Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.85; display:flex; }
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; line-height:1; }
   code, .mono { font-family:'JetBrains Mono',monospace; direction:ltr; unicode-bidi:embed; }
+  a { color:var(--chain); }
 
   .sidebar { width:250px; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface); border-left:1px solid var(--border); padding:2rem 1.25rem; }
   .sidebar .brand { display:flex; align-items:center; gap:.5rem; margin-bottom:2rem; font-family:'Manrope',sans-serif; font-weight:800; font-size:16px; }
@@ -36,9 +37,9 @@
   .hero::after { content:"link"; font-family:'Material Symbols Outlined'; position:absolute; left:-20px; top:-30px; font-size:220px; opacity:.1; }
   .hero .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:.06em; margin-bottom:.75rem; opacity:.9; }
   .hero h1 { font-size:2.1rem; margin:0 0 .8rem; line-height:1.35; font-family:'Noto Sans Bengali',sans-serif; font-weight:800; }
-  .hero p { max-width:640px; opacity:.95; margin:0; font-size:16px; }
+  .hero p { max-width:660px; opacity:.95; margin:0; font-size:16px; }
   .badges { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.5rem; }
-  .badge { background:rgba(255,255,255,.16); padding:.4rem .9rem; border-radius:999px; font-size:13px; font-weight:600; }
+  .badge { background:rgba(255,255,255,.18); padding:.4rem .9rem; border-radius:999px; font-size:13px; font-weight:600; }
 
   section { margin-bottom:3.5rem; scroll-margin-top:2rem; }
   section > .kicker { display:flex; align-items:center; gap:.6rem; font-size:12.5px; font-weight:700; letter-spacing:.04em; color:var(--chain); margin-bottom:.6rem; }
@@ -70,6 +71,8 @@
   .check-item { display:flex; gap:.9rem; padding:1rem 0; border-top:1px solid var(--border); }
   .check-item:first-child { border-top:none; }
   .check-item .box { width:24px; height:24px; border-radius:6px; border:2px solid var(--border-strong); flex-shrink:0; margin-top:2px; }
+  .check-item.done .box { background:var(--primary); border-color:var(--primary); position:relative; }
+  .check-item.done .box::after { content:"check"; font-family:'Material Symbols Outlined'; color:#fff; font-size:16px; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
   .check-item .t { font-weight:700; font-size:15.5px; }
   .check-item .d { font-size:14px; color:var(--text-muted); margin-top:3px; }
 
@@ -77,19 +80,14 @@
   .tl-item { display:grid; grid-template-columns:30px 1fr; column-gap:1rem; }
   .tl-rail { display:flex; flex-direction:column; align-items:center; }
   .tl-dot { width:24px; height:24px; border-radius:50%; background:var(--surface); border:2.5px solid var(--border-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text-faint); }
+  .tl-item.done .tl-dot { background:var(--primary); border-color:var(--primary); color:#fff; }
   .tl-item.now .tl-dot { background:var(--chain); border-color:var(--chain); color:#fff; }
   .tl-line { width:2px; flex:1; background:var(--border); min-height:20px; }
+  .tl-item.done .tl-line { background:var(--primary-light); }
   .tl-item:last-child .tl-line { display:none; }
   .tl-content { padding-bottom:1.4rem; }
   .tl-content .title { font-weight:700; font-size:15.5px; }
   .tl-content .detail { font-size:14px; color:var(--text-muted); margin-top:3px; }
-
-  .steps-num { padding:1.5rem; }
-  .step-row { display:flex; gap:1rem; padding:1rem 0; border-top:1px solid var(--border); align-items:flex-start; }
-  .step-row:first-child { border-top:none; }
-  .step-num { width:30px; height:30px; border-radius:50%; background:var(--chain-bg); color:var(--chain); font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .step-row .t { font-weight:700; font-size:15px; }
-  .step-row .d { font-size:14px; color:var(--text-muted); margin-top:2px; }
 
   .codebox { background:#16181a; color:#d9e4dc; border-radius:10px; padding:1.1rem 1.3rem; font-size:12.6px; line-height:1.7; overflow-x:auto; direction:ltr; text-align:left; font-family:'JetBrains Mono',monospace; }
   .codebox .c1{color:#7fd99f;} .codebox .c2{color:#f0c674;} .codebox .c3{color:#8ab4f8;} .codebox .cm{color:#7a7f7c;} .codebox .c4{color:#e0a5d8;}
@@ -113,8 +111,9 @@
 <aside class="sidebar">
   <div class="brand"><div class="mark"><span class="material-symbols-outlined" style="font-size:17px;">link</span></div>ব্লকচেইন গাইড</div>
   <nav>
-    <a href="#overview">ভূমিকা</a>
+    <a href="#status">এখন প্রজেক্টের অবস্থা</a>
     <a href="#basics">সহজ ভাষায় ব্লকচেইন</a>
+    <a href="#why-now">কেন এখন এটা জরুরি</a>
     <a href="#architecture">সিস্টেম ডায়াগ্রাম</a>
     <a href="#sandbox">Ethereum Sandbox</a>
     <a href="#flow">অনুমোদনের প্রবাহ</a>
@@ -133,36 +132,41 @@
   <div class="hero">
     <div class="eyebrow">TrustFundBD · ব্লকচেইন সংযোগ গাইড</div>
     <h1>TrustFundBD-কে সত্যিকারের ব্লকচেইনের সাথে যুক্ত করা</h1>
-    <p>এই গাইডটি সম্পূর্ণ বাংলায়, একদম শুরু থেকে বোঝানো হয়েছে — আপনার আগে কোনো ব্লকচেইন
-    অভিজ্ঞতা না থাকলেও পড়ে বুঝতে পারবেন। আমরা <strong>Ethereum Sandbox (Sepolia টেস্টনেট)</strong>
-    ব্যবহার করব, যেখানে সব কিছু আসল Ethereum নেটওয়ার্কের মতোই কাজ করে — কিন্তু টাকা পুরোপুরি
-    নকল (ফ্রি), তাই শেখা ও পরীক্ষা করা সম্পূর্ণ নিরাপদ।</p>
+    <p>এই গাইডটি আপডেট করা হয়েছে প্রজেক্টের বর্তমান অবস্থা অনুযায়ী — কোড এখন GitHub-এ আছে, আর
+    অ্যাপটা Supabase (ডাটাবেজ + ফাইল স্টোরেজ) আর Vercel-এর সাথে যুক্ত হওয়ার জন্য প্রস্তুত। আমরা
+    <strong>Ethereum Sandbox (Sepolia টেস্টনেট)</strong> ব্যবহার করব — আসল Ethereum নেটওয়ার্কের
+    মতোই কাজ করে, কিন্তু টাকা সম্পূর্ণ নকল, তাই শেখা ও পরীক্ষা করা সম্পূর্ণ নিরাপদ।</p>
     <div class="badges">
       <span class="badge">Ethereum Sepolia (Sandbox)</span>
       <span class="badge">Solidity</span>
       <span class="badge">web3.py</span>
-      <span class="badge">সম্পূর্ণ স্বচ্ছতা</span>
+      <span class="badge">GitHub + Vercel + Supabase</span>
     </div>
   </div>
 
-  <section id="overview">
-    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">info</span> ভূমিকা</div>
-    <h2>আসল "স্বচ্ছতা" বলতে আসলে কী বোঝায়</h2>
-    <p class="lead">
-      এখন <code>ledger.py</code> ফাইলটি প্রতিটি অনুমোদনের (approval) তথ্য একটা লোকাল
-      <code>chain_ledger.json</code> ফাইলে লিখে রাখে — এটা শুধু আপনার সার্ভারেই থাকে, বাইরের
-      কেউ দেখতে পায় না। "আসল স্বচ্ছতা" মানে হলো, এই একই তথ্যগুলো একটা <strong>পাবলিক
-      ব্লকচেইনে</strong> লিখে রাখা, যাতে যে কেউ — দাতা, ক্রিয়েটর, বা বাইরের যে কেউ — সেই
-      লেনদেন খুঁজে বের করে দেখতে পারেন ঠিক কত টাকা, কখন, কোন ক্যাম্পেইনের জন্য অনুমোদিত
-      হয়েছে। একবার লেখা হয়ে গেলে সেটা আর কেউ — এমনকি আপনি নিজেও — মুছতে বা বদলাতে পারবেন না।
-    </p>
-    <div class="callout info">
-      <span class="material-symbols-outlined">lightbulb</span>
-      <div>এই কাজটা দুই ভাগে হবে: (১) একটা ছোট <strong>Solidity স্মার্ট কন্ট্রাক্ট</strong> Sandbox
-      নেটওয়ার্কে বসানো, এবং (২) <code>ledger.py</code>-এর <code>record_event()</code> ফাংশনটাকে
-      ফাইলে লেখার বদলে <strong>web3.py</strong> দিয়ে ব্লকচেইনে লেখার মতো করে বদলানো। বাকি সব
-      কিছু — রুট, টেমপ্লেট, ট্রাস্ট স্কোর — একদম আগের মতোই থাকবে। <strong>এখনই কিছু তৈরি করা
-      হচ্ছে না</strong> — এটা শুধু পুরো পরিকল্পনা বোঝানোর জন্য।</div>
+  <section id="status">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">fact_check</span> প্রথমেই — কোথায় দাঁড়িয়ে আছেন</div>
+    <h2>প্রজেক্টের এখনকার অবস্থা</h2>
+    <p class="lead">ব্লকচেইনে হাত দেওয়ার আগে, এই গাইড লেখার সময় প্রজেক্টটা ঠিক কোন অবস্থায় আছে তার একটা সংক্ষিপ্ত ছবি — যাতে নিচের সবকিছু বাস্তবতার সাথে মেলে।</p>
+    <div class="card">
+      <div class="checklist">
+        <div class="check-item done">
+          <div class="box"></div>
+          <div><div class="t">কোড GitHub-এ আছে</div><div class="d"><code>github.com/jafrul-hossain/trustfundbd</code> — যেকোনো পরিবর্তন এখন থেকে সেখানেই ভার্সন-কন্ট্রোল হবে।</div></div>
+        </div>
+        <div class="check-item done">
+          <div class="box"></div>
+          <div><div class="t">ডাটাবেজ ও ফাইল স্টোরেজ Supabase-এ যুক্ত</div><div class="d">আলাদা <code>pyapp</code> স্কিমা তৈরি হয়েছে (মূল Next.js অ্যাপের টেবিলের সাথে সংঘর্ষ এড়াতে), এবং ছবি/প্রমাণপত্র আপলোডের জন্য একটা পাবলিক Storage বাকেট আছে।</div></div>
+        </div>
+        <div class="check-item done">
+          <div class="box"></div>
+          <div><div class="t">Vercel-এ ডিপ্লয়ের জন্য প্রস্তুত</div><div class="d"><code>vercel.json</code>, <code>.vercelignore</code>, <code>.python-version</code> — সব রেডি। <code>DATABASE_URL</code> সেট থাকলে অ্যাপ নিজে থেকেই SQLite থেকে Postgres-এ সুইচ করে।</div></div>
+        </div>
+        <div class="check-item">
+          <div class="box"></div>
+          <div><div class="t">ব্লকচেইন এখনো যুক্ত হয়নি</div><div class="d"><code>ledger.py</code> এখনো একটা লোকাল JSON ফাইলে (<code>chain_ledger.json</code>) নকল লেনদেন লিখে রাখে — নিচের "কেন এখন এটা জরুরি" অংশে বিস্তারিত।</div></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -198,77 +202,94 @@
     </div>
   </section>
 
+  <section id="why-now">
+    <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">priority_high</span> নতুন আবিষ্কার</div>
+    <h2>কেন এখন এটা আগের চেয়েও জরুরি</h2>
+    <p class="lead">অ্যাপটাকে Vercel-এ ডিপ্লয়যোগ্য করার সময় একটা বাস্তব সমস্যা ধরা পড়েছে, যা সরাসরি এই ব্লকচেইন সিদ্ধান্তের সাথে সম্পর্কিত।</p>
+    <div class="callout warn">
+      <span class="material-symbols-outlined">warning</span>
+      <div><strong>সমস্যা:</strong> এখনকার <code>ledger.py</code> প্রতিটা অনুমোদনের (দান, প্রমাণ, উত্তোলন)
+      তথ্য একটা লোকাল ফাইলে (<code>chain_ledger.json</code>) লিখে রাখে। কিন্তু Vercel-এর সার্ভারে
+      কোনো স্থায়ী ডিস্ক নেই — পুরো কোড ফোল্ডারটাই "read-only" (শুধু পড়া যায়, লেখা যায় না)। তাই
+      Vercel-এ ডিপ্লয় করা অবস্থায় এই নকল লেজার ফাইলে কিছু লিখতে পারে না।</div>
+    </div>
+    <div class="callout ok">
+      <span class="material-symbols-outlined">check_circle</span>
+      <div><strong>এই মুহূর্তে অ্যাপ ভেঙে পড়বে না</strong> — কোডটা এমনভাবে ঠিক করা হয়েছে যাতে লেখা
+      ব্যর্থ হলেও চুপচাপ উপেক্ষা করে, তাই দান/প্রমাণ/উত্তোলন অনুমোদন করতে কোনো সমস্যা হবে না। শুধু
+      এই "নকল ব্লকচেইন রেফারেন্স নম্বর"টা আসলে কোথাও স্থায়ীভাবে জমা থাকছে না।</div>
+    </div>
+    <div class="callout gold">
+      <span class="material-symbols-outlined">lightbulb</span>
+      <div>এটাই বরং একটা ভালো যুক্তি হয়ে দাঁড়ায়: আপনার অ্যাপ এমনিতেই এখন সবসময় ইন্টারনেটের সাথে
+      কথা বলে (Supabase-এর সাথে) — তাই ব্লকচেইনের সাথে কথা বলাও (web3.py দিয়ে RPC কল) একদমই নতুন
+      কোনো জটিলতা যোগ করবে না। Supabase Storage-এ ছবি আপলোড করা যেভাবে কাজ করে, ব্লকচেইনে লেনদেন
+      পাঠানোও ঠিক সেভাবেই কাজ করবে — শুধু একটা ভিন্ন ঠিকানায় HTTPS কল।</div>
+    </div>
+  </section>
+
   <section id="architecture">
     <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">schema</span> ডায়াগ্রাম ১</div>
-    <h2>পুরো সিস্টেমটা কীভাবে একসাথে কাজ করবে</h2>
-    <p class="lead">TrustFundBD অ্যাপ থেকে শুরু করে Ethereum Sandbox পর্যন্ত ডেটা কীভাবে যাবে, তার সম্পূর্ণ চিত্র।</p>
+    <h2>পুরো সিস্টেমটা এখন কীভাবে সাজানো, আর ব্লকচেইন কোথায় বসবে</h2>
+    <p class="lead">বর্তমান আর্কিটেকচারে Supabase ইতিমধ্যেই আছে; ব্লকচেইন যুক্ত হবে ঠিক তার পাশেই, একই অ্যাপ থেকে।</p>
     <div class="diagram-wrap">
-<svg viewBox="0 0 900 430" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Bengali, sans-serif">
+<svg viewBox="0 0 940 460" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Bengali, sans-serif">
   <defs>
-    <marker id="arrow1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#93928c"/></marker>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#93928c"/></marker>
   </defs>
 
-  <!-- Row 1: App side -->
-  <rect x="30" y="30" width="170" height="70" rx="12" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
-  <text x="115" y="58" text-anchor="middle" font-size="14" font-weight="700" fill="#005027">দাতা / এডমিন</text>
-  <text x="115" y="78" text-anchor="middle" font-size="12" fill="#3d6b4c">(ব্রাউজার)</text>
+  <!-- Row 1 -->
+  <rect x="30" y="20" width="180" height="65" rx="12" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
+  <text x="120" y="48" text-anchor="middle" font-size="13" font-weight="700" fill="#005027">দাতা / এডমিন</text>
+  <text x="120" y="66" text-anchor="middle" font-size="11.5" fill="#3d6b4c">(ব্রাউজারে)</text>
 
-  <rect x="250" y="30" width="170" height="70" rx="12" fill="#ffffff" stroke="#d3d1c7" stroke-width="1.5"/>
-  <text x="335" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1c1b">Flask অ্যাপ</text>
-  <text x="335" y="70" text-anchor="middle" font-size="11.5" fill="#5f5e5e" font-family="JetBrains Mono, monospace">app.py</text>
-  <text x="335" y="86" text-anchor="middle" font-size="11" fill="#93928c">(অনুমোদন করলে)</text>
+  <rect x="255" y="20" width="200" height="65" rx="12" fill="#ffffff" stroke="#d3d1c7" stroke-width="1.5"/>
+  <text x="355" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1c1b">Flask অ্যাপ (Vercel-এ)</text>
+  <text x="355" y="60" text-anchor="middle" font-size="11" fill="#5f5e5e" font-family="JetBrains Mono, monospace">app.py</text>
+  <text x="355" y="76" text-anchor="middle" font-size="10.5" fill="#93928c">GitHub থেকে ডিপ্লয়</text>
 
-  <rect x="470" y="30" width="170" height="70" rx="12" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
-  <text x="555" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#453f8f">লেজার ফাইল</text>
-  <text x="555" y="70" text-anchor="middle" font-size="11.5" fill="#534ab7" font-family="JetBrains Mono, monospace">ledger.py</text>
-  <text x="555" y="86" text-anchor="middle" font-size="11" fill="#7b76b3">record_event()</text>
+  <line x1="210" y1="52" x2="253" y2="52" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
 
-  <rect x="690" y="30" width="180" height="70" rx="12" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
-  <text x="780" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#453f8f">web3.py সংযোগ</text>
-  <text x="780" y="70" text-anchor="middle" font-size="11" fill="#534ab7">পাইথন থেকে চেইনে</text>
-  <text x="780" y="86" text-anchor="middle" font-size="11" fill="#7b76b3">লেনদেন পাঠায়</text>
+  <!-- two branches from app.py -->
+  <line x1="355" y1="85" x2="230" y2="150" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="355" y1="85" x2="690" y2="150" stroke="#534ab7" stroke-width="1.5" marker-end="url(#ar)"/>
 
-  <line x1="200" y1="65" x2="248" y2="65" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
-  <line x1="420" y1="65" x2="468" y2="65" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
-  <line x1="640" y1="65" x2="688" y2="65" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <!-- Left branch: Supabase (existing) -->
+  <rect x="60" y="150" width="340" height="90" rx="14" fill="#eef6f0" stroke="#006d37" stroke-width="1.5"/>
+  <text x="230" y="176" text-anchor="middle" font-size="13.5" font-weight="800" fill="#005027">Supabase — আগে থেকেই যুক্ত</text>
+  <text x="230" y="198" text-anchor="middle" font-size="11.5" fill="#3d6b4c">Postgres ডাটাবেজ (pyapp স্কিমা)</text>
+  <text x="230" y="216" text-anchor="middle" font-size="11.5" fill="#3d6b4c">+ Storage বাকেট (ছবি/প্রমাণপত্র)</text>
+  <text x="230" y="232" text-anchor="middle" font-size="10.5" fill="#6b8f77">স্থায়ী, সত্যিকারের ডেটা এখানেই থাকে</text>
 
-  <!-- vertical arrow down -->
-  <line x1="780" y1="100" x2="780" y2="150" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <!-- Right branch: Blockchain (new) -->
+  <rect x="530" y="150" width="360" height="90" rx="14" fill="#eeedfe" stroke="#534ab7" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="710" y="176" text-anchor="middle" font-size="13.5" font-weight="800" fill="#453f8f">ব্লকচেইন — নতুন যোগ হবে</text>
+  <text x="710" y="198" text-anchor="middle" font-size="11.5" fill="#534ab7">Ethereum Sepolia (Sandbox)</text>
+  <text x="710" y="216" text-anchor="middle" font-size="11.5" fill="#534ab7">TrustFundLedger স্মার্ট কন্ট্রাক্ট</text>
+  <text x="710" y="232" text-anchor="middle" font-size="10.5" fill="#8b86c7">শুধু "প্রমাণের" রেকর্ড, টাকা নয়</text>
 
-  <!-- Row 2: infra -->
-  <rect x="600" y="150" width="220" height="70" rx="12" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
-  <text x="710" y="176" text-anchor="middle" font-size="13" font-weight="700" fill="#8a5a0b">RPC প্রোভাইডার</text>
-  <text x="710" y="194" text-anchor="middle" font-size="11.5" fill="#ba7517">Alchemy / Infura</text>
-  <text x="710" y="210" text-anchor="middle" font-size="10.5" fill="#a67a34">(ইন্টারনেট গেটওয়ে)</text>
+  <line x1="230" y1="240" x2="230" y2="290" stroke="#93928c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="710" y1="240" x2="710" y2="290" stroke="#534ab7" stroke-width="1.5" marker-end="url(#ar)"/>
 
-  <line x1="710" y1="220" x2="710" y2="270" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <rect x="60" y="290" width="340" height="70" rx="12" fill="#ffffff" stroke="#e8e8e6" stroke-width="1.5"/>
+  <text x="230" y="318" text-anchor="middle" font-size="12.5" fill="#1a1c1b" font-weight="700">ওয়েবসাইটে দেখা যায়</text>
+  <text x="230" y="338" text-anchor="middle" font-size="11" fill="#5f5e5e">ক্যাম্পেইন, দান, ট্রাস্ট স্কোর</text>
 
-  <!-- Row 3: blockchain network -->
-  <rect x="480" y="270" width="340" height="90" rx="14" fill="#ffffff" stroke="#534ab7" stroke-width="2"/>
-  <text x="650" y="298" text-anchor="middle" font-size="14.5" font-weight="800" fill="#453f8f">Ethereum Sepolia — Sandbox</text>
-  <text x="650" y="320" text-anchor="middle" font-size="12" fill="#5f5e5e">TrustFundLedger স্মার্ট কন্ট্রাক্ট</text>
-  <text x="650" y="340" text-anchor="middle" font-size="11" fill="#93928c">(নকল/ফ্রি টেস্ট মুদ্রা ব্যবহার করে)</text>
+  <rect x="530" y="290" width="360" height="70" rx="12" fill="#ffffff" stroke="#e8e8e6" stroke-width="1.5"/>
+  <text x="710" y="318" text-anchor="middle" font-size="12.5" fill="#1a1c1b" font-weight="700">Sepolia Etherscan-এ দেখা যায়</text>
+  <text x="710" y="338" text-anchor="middle" font-size="11" fill="#5f5e5e">যে কেউ, বিনামূল্যে যাচাই করতে পারে</text>
 
-  <line x1="480" y1="315" x2="330" y2="315" stroke="#93928c" stroke-width="1.5" marker-end="url(#arrow1)"/>
-
-  <!-- Row 3 left: Explorer -->
-  <rect x="60" y="270" width="270" height="90" rx="14" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
-  <text x="195" y="298" text-anchor="middle" font-size="13.5" font-weight="700" fill="#005027">Sepolia Etherscan</text>
-  <text x="195" y="320" text-anchor="middle" font-size="12" fill="#2f6b45">(পাবলিক ব্লক এক্সপ্লোরার)</text>
-  <text x="195" y="340" text-anchor="middle" font-size="11" fill="#4c8461">যে কেউ, বিনামূল্যে দেখতে পারে</text>
-
-  <line x1="195" y1="270" x2="115" y2="102" stroke="#93928c" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow1)"/>
-
-  <text x="450" y="405" text-anchor="middle" font-size="11.5" fill="#93928c">ড্যাশড লাইন = দাতা নিজেই লেনদেন যাচাই করে দেখতে পারেন (স্বচ্ছতা)</text>
+  <text x="470" y="410" text-anchor="middle" font-size="12" fill="#93928c">দুটোই একসাথে চলবে — Supabase রাখে "কী হয়েছে", ব্লকচেইন প্রমাণ করে "সত্যিই হয়েছে, কেউ বদলায়নি"</text>
+  <text x="470" y="432" text-anchor="middle" font-size="11" fill="#bbb8d6">(ড্যাশড বক্স = এখনো তৈরি হয়নি, এই গাইডের পরিকল্পনা)</text>
 </svg>
-      <div class="diagram-caption">চিত্র ১: অনুমোদন করার পর তথ্য কীভাবে অ্যাপ থেকে ব্লকচেইনে পৌঁছায় এবং পাবলিকলি দেখা যায়</div>
+      <div class="diagram-caption">চিত্র ১: বর্তমান Supabase আর্কিটেকচারের পাশে ব্লকচেইন কোথায় যুক্ত হবে</div>
     </div>
   </section>
 
   <section id="sandbox">
     <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">science</span> আপনার নেওয়া সিদ্ধান্ত</div>
     <h2>Ethereum Sandbox (Sepolia Testnet) কেন এবং কী</h2>
-    <p class="lead">আপনি বলেছেন আমরা Ethereum Sandbox ব্যবহার করব — এটাই সঠিক সিদ্ধান্ত, বিশেষত শেখার জন্য। নিচে বিস্তারিত।</p>
+    <p class="lead">আপনি বলেছিলেন আমরা Ethereum Sandbox ব্যবহার করব — এটাই সঠিক সিদ্ধান্ত, বিশেষত শেখার জন্য। নিচে বিস্তারিত।</p>
     <div class="callout gold">
       <span class="material-symbols-outlined">school</span>
       <div><strong>Sandbox আসলে কী?</strong> "Sepolia" হলো Ethereum-এর নিজস্ব প্র্যাকটিস নেটওয়ার্ক (একে
@@ -288,15 +309,15 @@
     </div>
     <div class="callout info" style="margin-top:1rem;">
       <span class="material-symbols-outlined">verified_user</span>
-      <div>পরিকল্পনা: আমরা প্রথমে সম্পূর্ণভাবে Sepolia Sandbox-এ তৈরি করব এবং টেস্ট করব। সব
-      ঠিকমতো কাজ করলে, এবং আপনি যখন প্রস্তুত মনে করবেন, তখনই শুধু একটা সেটিং বদলে আসল
-      নেটওয়ার্কে (Ethereum বা সস্তা বিকল্প Polygon) নিয়ে যাওয়া যাবে — কোড নতুন করে লিখতে হবে না।</div>
+      <div>পরিকল্পনা: আমরা প্রথমে সম্পূর্ণভাবে Sepolia Sandbox-এ তৈরি করব এবং টেস্ট করব — একদম
+      Vercel-এর প্রিভিউ ডিপ্লয়মেন্টেই। সব ঠিকমতো কাজ করলে, তখনই শুধু একটা এনভায়রনমেন্ট ভ্যারিয়েবল
+      বদলে আসল নেটওয়ার্কে (Ethereum বা সস্তা বিকল্প Polygon) নিয়ে যাওয়া যাবে — কোড নতুন করে লিখতে হবে না।</div>
     </div>
   </section>
 
   <section id="flow">
     <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">alt_route</span> ডায়াগ্রাম ২</div>
-    <h2>একটা দান অনুমোদনের সম্পূর্ণ যাত্রা</h2>
+    <h2>একটা দান অনুমোদনের সম্পূর্ণ যাত্রা (ব্লকচেইন যুক্ত হওয়ার পর)</h2>
     <p class="lead">এডমিন যখন "Approve" বাটনে ক্লিক করবেন, তখন পর্দার আড়ালে কী কী ঘটবে — ধাপে ধাপে।</p>
     <div class="diagram-wrap">
 <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Bengali, sans-serif">
@@ -312,33 +333,33 @@
   <line x1="90" y1="60" x2="150" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
   <g>
-    <circle cx="200" cy="60" r="26" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
-    <text x="200" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#453f8f">২</text>
-    <text x="200" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">record_event()</text>
-    <text x="200" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">কল হয়</text>
+    <circle cx="200" cy="60" r="26" fill="#eef6f0" stroke="#006d37" stroke-width="1.5"/>
+    <text x="200" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#005027">২</text>
+    <text x="200" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">Supabase Postgres</text>
+    <text x="200" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">টাকার হিসাব আপডেট</text>
   </g>
   <line x1="230" y1="60" x2="290" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
   <g>
     <circle cx="340" cy="60" r="26" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
     <text x="340" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#453f8f">৩</text>
-    <text x="340" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">লেনদেন তৈরি</text>
-    <text x="340" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">ওয়ালেট দিয়ে সই</text>
+    <text x="340" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">record_event()</text>
+    <text x="340" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">কল হয়</text>
   </g>
   <line x1="370" y1="60" x2="430" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
   <g>
-    <circle cx="480" cy="60" r="26" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
-    <text x="480" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#8a5a0b">৪</text>
-    <text x="480" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">Sepolia-তে পাঠানো</text>
-    <text x="480" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">RPC এর মাধ্যমে</text>
+    <circle cx="480" cy="60" r="26" fill="#eeedfe" stroke="#534ab7" stroke-width="1.5"/>
+    <text x="480" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#453f8f">৪</text>
+    <text x="480" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">web3.py দিয়ে</text>
+    <text x="480" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">লেনদেন সই + পাঠানো</text>
   </g>
   <line x1="510" y1="60" x2="570" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
   <g>
     <circle cx="620" cy="60" r="26" fill="#faeeda" stroke="#ba7517" stroke-width="1.5"/>
     <text x="620" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#8a5a0b">৫</text>
-    <text x="620" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">ব্লকে যুক্ত</text>
+    <text x="620" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">Sepolia-তে ব্লকে যুক্ত</text>
     <text x="620" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">(কয়েক সেকেন্ড)</text>
   </g>
   <line x1="650" y1="60" x2="710" y2="60" stroke="#534ab7" stroke-width="1.5" marker-end="url(#arrow2)"/>
@@ -347,15 +368,15 @@
     <circle cx="760" cy="60" r="26" fill="#d0e9d2" stroke="#006d37" stroke-width="1.5"/>
     <text x="760" y="65" text-anchor="middle" font-size="15" font-weight="800" fill="#005027">৬</text>
     <text x="760" y="105" text-anchor="middle" font-size="12" fill="#1a1c1b" font-weight="600">tx hash সেভ</text>
-    <text x="760" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">ডাটাবেজে</text>
+    <text x="760" y="121" text-anchor="middle" font-size="11" fill="#5f5e5e">Postgres-এ</text>
   </g>
 
   <rect x="30" y="165" width="800" height="70" rx="12" fill="#f4fbf6" stroke="#2ecc71" stroke-width="1.5"/>
   <text x="430" y="192" text-anchor="middle" font-size="13.5" font-weight="700" fill="#005027">ফলাফল</text>
   <text x="430" y="212" text-anchor="middle" font-size="12.5" fill="#2f6b45">দাতা এখন ক্যাম্পেইন পেজে গিয়ে "ব্লকচেইনে দেখুন" লিংকে ক্লিক করে</text>
-  <text x="430" y="228" text-anchor="middle" font-size="12.5" fill="#2f6b45">নিজেই Sepolia Etherscan-এ পুরো লেনদেন যাচাই করতে পারবেন।</text>
+  <text x="430" y="228" text-anchor="middle" font-size="12.5" fill="#2f6b45">নিজেই Sepolia Etherscan-এ পুরো লেনদেন যাচাই করতে পারবেন — এবার সত্যিই স্থায়ীভাবে।</text>
 </svg>
-      <div class="diagram-caption">চিত্র ২: এডমিন অনুমোদন করার মুহূর্ত থেকে ব্লকচেইনে স্থায়ীভাবে রেকর্ড হওয়া পর্যন্ত ৬টা ধাপ</div>
+      <div class="diagram-caption">চিত্র ২: এখনকার ধাপ ২ (Postgres) অপরিবর্তিত থাকে; ৩–৬ নতুন যুক্ত হয় — কোনো কিছু ভাঙে না</div>
     </div>
   </section>
 
@@ -379,7 +400,7 @@
         </div>
         <div class="check-item">
           <div class="box"></div>
-          <div><div class="t">সবুজ সংকেত</div><div class="d">উপরের তিনটা রেডি হয়ে গেলে, শুধু বলবেন "রেডি" — তখন আমি কন্ট্রাক্ট ও deploy স্ক্রিপ্ট লিখে দেব, এবং আপনি নিজের কম্পিউটার থেকে কমান্ড চালাবেন।</div></div>
+          <div><div class="t">Vercel প্রজেক্টে ৩টা নতুন এনভায়রনমেন্ট ভ্যারিয়েবল</div><div class="d">আপনি ইতিমধ্যে <code>DATABASE_URL</code>, <code>SUPABASE_URL</code> ইত্যাদি Vercel-এ সেট করেছেন — ব্লকচেইনের জন্য একই জায়গায় আরও তিনটা যোগ হবে: <code>RPC_URL</code>, <code>PRIVATE_KEY</code>, <code>CONTRACT_ADDRESS</code>। প্রক্রিয়াটা হুবহু একই রকম, তাই এবার আর নতুন করে কিছু শিখতে হবে না।</div></div>
         </div>
       </div>
     </div>
@@ -398,9 +419,10 @@
     </div>
     <div class="callout warn">
       <span class="material-symbols-outlined">warning</span>
-      <div>এর বদলে: চাবি থাকবে শুধু আপনার নিজের কম্পিউটারে, একটা লোকাল <code>.env</code>
-      ফাইলে। deploy করার কমান্ডগুলো আপনি নিজেই টার্মিনালে চালাবেন — আমি শুধু স্ক্রিপ্ট আর
-      সঠিক কমান্ড লিখে দেব।</div>
+      <div>Private key শুধু Vercel-এর Environment Variables সেটিংসে (এনক্রিপ্টেড অবস্থায় জমা থাকে)
+      যোগ হবে, সরাসরি আপনি নিজেই। আমি শুধু স্মার্ট কন্ট্রাক্ট আর deploy স্ক্রিপ্ট লিখে দেব, আর
+      কোন এনভায়রনমেন্ট ভ্যারিয়েবল লাগবে তার নাম বলে দেব — যেমন আগে <code>SUPABASE_KEY</code>-এর
+      বেলায় করা হয়েছিল।</div>
     </div>
     <div class="callout ok">
       <span class="material-symbols-outlined">verified_user</span>
@@ -433,31 +455,39 @@
     <div class="callout ok" style="margin-top:1rem;">
       <span class="material-symbols-outlined">visibility</span>
       <div>এই <code>event</code>-গুলো পাবলিক বলে, যে কেউ চাইলে যেকোনো ক্যাম্পেইনের পুরো ইতিহাস
-      সরাসরি ব্লকচেইনে গিয়ে দেখতে পারবেন — আপনার সার্ভার চালু আছে কিনা বা সৎ কিনা, তার উপর
-      কোনো নির্ভরতা ছাড়াই।</div>
+      সরাসরি ব্লকচেইনে গিয়ে দেখতে পারবেন — আপনার Vercel সার্ভার চালু আছে কিনা, বা Supabase ডাউন
+      কিনা, তার উপর কোনো নির্ভরতা ছাড়াই।</div>
     </div>
   </section>
 
   <section id="pyside">
     <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">terminal</span> অন্য অর্ধেক</div>
     <h2>পাইথন অ্যাপে কী পরিবর্তন হবে</h2>
-    <p class="lead">যখন সময় হবে, তখন শুধু একটা ফাইল বদলাবে। বাকি সব — রুট, টেমপ্লেট, ট্রাস্ট স্কোর — অপরিবর্তিত থাকবে।</p>
+    <p class="lead">শুধু <code>ledger.py</code> ফাইলটা বদলাবে — ঠিক যেভাবে আগে <code>save_upload()</code> স্থানীয় ডিস্কের বদলে Supabase Storage ব্যবহার করা শুরু করেছিল, একই প্যাটার্নে। বাকি সব — routes, templates, ট্রাস্ট স্কোর — অপরিবর্তিত থাকবে।</p>
     <div class="card pad">
       <div class="codebox">
-<span class="cm"># .env  (শুধু আপনার কম্পিউটারে থাকবে, কখনো শেয়ার হবে না)</span><br>
+<span class="cm"># Vercel-এ Environment Variables-এ যোগ হবে (আগের DATABASE_URL/SUPABASE_URL-এর মতোই):</span><br>
 RPC_URL=https://eth-sepolia.g.alchemy.com/v2/&lt;your-key&gt;<br>
 PRIVATE_KEY=&lt;আপনার এডমিন ওয়ালেটের প্রাইভেট কী&gt;<br>
 CONTRACT_ADDRESS=0x...<br><br>
 <span class="cm"># ledger.py — record_event() এখন আসল কাজ করবে</span><br>
 <span class="c2">from</span> web3 <span class="c2">import</span> Web3<br>
-w3 = Web3(Web3.HTTPProvider(RPC_URL))<br>
+w3 = Web3(Web3.HTTPProvider(os.environ.get(<span class="c1">"RPC_URL"</span>)))<br>
 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
 <span class="c2">def</span> <span class="c3">record_event</span>(event_type, payload):<br>
+&nbsp;&nbsp;<span class="cm"># স্থানীয় ফাইলে লেখার বদলে, এখন সরাসরি চেইনে লেনদেন পাঠানো হয় —</span><br>
+&nbsp;&nbsp;<span class="cm"># তাই Vercel-এর read-only ফাইলসিস্টেম সমস্যাটাও একইসাথে সমাধান হয়ে যায়।</span><br>
 &nbsp;&nbsp;tx = contract.functions.recordDonation(...).build_transaction({...})<br>
-&nbsp;&nbsp;signed = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)<br>
+&nbsp;&nbsp;signed = w3.eth.account.sign_transaction(tx, os.environ.get(<span class="c1">"PRIVATE_KEY"</span>))<br>
 &nbsp;&nbsp;tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)<br>
 &nbsp;&nbsp;<span class="c2">return</span> tx_hash.hex()
       </div>
+    </div>
+    <div class="callout gold" style="margin-top:1rem;">
+      <span class="material-symbols-outlined">auto_awesome</span>
+      <div>মজার একটা ব্যাপার লক্ষ্য করুন: এই পরিবর্তনটা "কেন এখন এটা জরুরি" অংশে বলা read-only
+      ফাইলসিস্টেমের সমস্যাটাও নিজে থেকেই সমাধান করে দেয় — কারণ ব্লকচেইনে লেখার জন্য কোনো লোকাল
+      ফাইলের দরকারই পড়ে না, শুধু একটা নেটওয়ার্ক কল যথেষ্ট।</div>
     </div>
   </section>
 
@@ -466,6 +496,10 @@ contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
     <h2>প্রস্তুত হলে কীভাবে এগোবে</h2>
     <div class="card">
       <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-rail"><div class="tl-dot">✓</div><div class="tl-line"></div></div>
+          <div class="tl-content"><div class="title">কোড GitHub-এ, Supabase যুক্ত, Vercel-এ ডিপ্লয়যোগ্য</div><div class="detail">এই ধাপগুলো ইতিমধ্যে শেষ — এখন থেকে শুরু হচ্ছে।</div></div>
+        </div>
         <div class="tl-item now">
           <div class="tl-rail"><div class="tl-dot">১</div><div class="tl-line"></div></div>
           <div class="tl-content"><div class="title">আপনি এই গাইড পড়ে ওয়ালেট ও RPC রেডি করবেন</div><div class="detail">কোনো সময়সীমা নেই — প্রস্তুত মনে হলেই এগোনো যাবে।</div></div>
@@ -480,11 +514,11 @@ contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
         </div>
         <div class="tl-item">
           <div class="tl-rail"><div class="tl-dot">৪</div><div class="tl-line"></div></div>
-          <div class="tl-content"><div class="title">একসাথে পুরো ফ্লো টেস্ট করব</div><div class="detail">দান করা → অনুমোদন → নিজেই Etherscan-এ গিয়ে লেনদেন দেখা।</div></div>
+          <div class="tl-content"><div class="title">GitHub-এ পুশ করলেই Vercel অটো-ডিপ্লয় করবে</div><div class="detail">নতুন এনভায়রনমেন্ট ভ্যারিয়েবলগুলো যোগ করে রিডিপ্লয় করা লাগবে — নতুন করে সেটআপ করা লাগবে না।</div></div>
         </div>
         <div class="tl-item">
           <div class="tl-rail"><div class="tl-dot">৫</div></div>
-          <div class="tl-content"><div class="title">আপনি চাইলে পরে আসল নেটওয়ার্কে যাওয়া</div><div class="detail">একই কন্ট্রাক্ট, একই কোড — শুধু নেটওয়ার্কের সেটিং বদলাবে, আর সামান্য আসল গ্যাস ফি লাগবে।</div></div>
+          <div class="tl-content"><div class="title">একসাথে টেস্ট করে, ইচ্ছা করলে পরে আসল নেটওয়ার্কে যাওয়া</div><div class="detail">দান → অনুমোদন → নিজেই Etherscan-এ গিয়ে লেনদেন দেখা। পরে শুধু নেটওয়ার্কের সেটিং বদলালেই আসল Ethereum/Polygon-এ যাওয়া যাবে।</div></div>
         </div>
       </div>
     </div>
@@ -494,7 +528,7 @@ contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
     <div class="kicker"><span class="material-symbols-outlined" style="font-size:17px;">payments</span> বাজেট</div>
     <h2>ভবিষ্যতে খরচ কেমন হবে</h2>
     <div class="card pad">
-      <p style="margin:0 0 .75rem; font-size:14.5px;">Sandbox-এ টেস্ট করার সময় সব কিছু সম্পূর্ণ ফ্রি। আসল নেটওয়ার্কে গেলে, প্রতিটা এডমিন অনুমোদন একটা ছোট লেনদেন:</p>
+      <p style="margin:0 0 .75rem; font-size:14.5px;">Sandbox-এ টেস্ট করার সময় সব কিছু সম্পূর্ণ ফ্রি — Vercel আর Supabase-এর ফ্রি প্ল্যানের সাথেই চলবে। আসল নেটওয়ার্কে গেলে, প্রতিটা এডমিন অনুমোদন একটা ছোট লেনদেন:</p>
       <ul style="font-size:14px; color:var(--text-muted); margin:0; padding-left:1.2rem;">
         <li>Ethereum Mainnet-এ: প্রায় <strong>$2 – $30+</strong> প্রতি অনুমোদনে, নেটওয়ার্কের ব্যস্ততার উপর নির্ভর করে</li>
         <li>Polygon Mainnet-এ (Ethereum-এর সস্তা বিকল্প): প্রায় <strong>$0.001 – $0.01</strong> প্রতি অনুমোদনে</li>
@@ -518,11 +552,12 @@ contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)<br><br>
         <dt>MetaMask</dt><dd>সবচেয়ে জনপ্রিয় ওয়ালেট অ্যাপ — একটা ব্রাউজার এক্সটেনশন যা আপনার চাবি সংরক্ষণ করে ও লেনদেন অনুমোদনে সাহায্য করে।</dd>
         <dt>Gas Fee</dt><dd>ব্লকচেইনে কোনো নতুন এন্ট্রি লিখতে যে ছোট ফি দিতে হয়।</dd>
         <dt>Solidity</dt><dd>স্মার্ট কন্ট্রাক্ট লেখার প্রোগ্রামিং ভাষা, যা Ethereum ও এর সব সমগোত্রীয় নেটওয়ার্কে ব্যবহার হয়।</dd>
+        <dt>Environment Variable</dt><dd>Vercel-এ গোপনে রাখা সেটিং (যেমন পাসওয়ার্ড বা চাবি), যা কোডে সরাসরি লেখা থাকে না — আপনি ইতিমধ্যে <code>DATABASE_URL</code>-এর জন্য এটা করেছেন।</dd>
       </dl>
     </div>
   </section>
 
-  <footer>TrustFundBD — ব্লকচেইন সংযোগ গাইড (বাংলা) · এখনো কোনো কোড তৈরি হয়নি, এটা শুধু পরিকল্পনা</footer>
+  <footer>TrustFundBD — ব্লকচেইন সংযোগ গাইড (বাংলা) · প্রজেক্টের বর্তমান অবস্থা অনুযায়ী হালনাগাদকৃত · এখনো কোনো কোড তৈরি হয়নি, এটা শুধু পরিকল্পনা</footer>
 
 </div></div>
 </body>
