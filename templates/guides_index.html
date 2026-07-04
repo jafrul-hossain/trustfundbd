@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Project Guides — TrustFundBD{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-16">
+  <div class="mb-10">
+    <h1 class="font-headline text-3xl font-extrabold tracking-tight mb-2">Project Guides</h1>
+    <p class="text-[#5f5e5e]">Documentation explaining how this app is built and how blockchain integration would work — in English and Bangla.</p>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <a href="{{ url_for('guide_detail', slug='architecture') }}" class="block p-6 rounded-2xl bg-white shadow-ambient hover:shadow-lg transition-all border border-[#e8e8e6]">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="material-symbols-outlined text-[#006d37]" style="font-size:20px">schema</span>
+        <span class="font-headline font-bold">Architecture Guide</span>
+      </div>
+      <p class="text-sm text-[#5f5e5e]">How the app is structured — routes, database, file storage, deployment. English.</p>
+    </a>
+
+    <a href="{{ url_for('guide_detail', slug='blockchain') }}" class="block p-6 rounded-2xl bg-white shadow-ambient hover:shadow-lg transition-all border border-[#e8e8e6]">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="material-symbols-outlined text-[#534ab7]" style="font-size:20px">link</span>
+        <span class="font-headline font-bold">Blockchain Integration Guide</span>
+      </div>
+      <p class="text-sm text-[#5f5e5e]">Plan for connecting the app to a real Ethereum sandbox. English.</p>
+    </a>
+
+    <a href="{{ url_for('guide_detail', slug='project-bangla') }}" class="block p-6 rounded-2xl bg-white shadow-ambient hover:shadow-lg transition-all border border-[#e8e8e6]">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="material-symbols-outlined text-[#006d37]" style="font-size:20px">menu_book</span>
+        <span class="font-headline font-bold">প্রজেক্ট গাইড (Project Guide)</span>
+      </div>
+      <p class="text-sm text-[#5f5e5e]">Website workflow ও ফাইল ব্যাখ্যা, সহজ বাংলায়।</p>
+    </a>
+
+    <a href="{{ url_for('guide_detail', slug='blockchain-bangla') }}" class="block p-6 rounded-2xl bg-white shadow-ambient hover:shadow-lg transition-all border border-[#e8e8e6]">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="material-symbols-outlined text-[#534ab7]" style="font-size:20px">link</span>
+        <span class="font-headline font-bold">ব্লকচেইন গাইড (Blockchain Guide)</span>
+      </div>
+      <p class="text-sm text-[#5f5e5e]">Ethereum Sandbox সংযোগের পরিকল্পনা, সহজ বাংলায়।</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

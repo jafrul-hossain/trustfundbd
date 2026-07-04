@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "app.py": {
-      "excludeFiles": "{*.html,README.md,trustfundbd.db,chain_ledger.json,static/uploads/**,__pycache__/**}"
+      "excludeFiles": "{README.md,trustfundbd.db,chain_ledger.json,static/uploads/**,__pycache__/**}"
     }
   }
 }

@@ -7,9 +7,3 @@ static/uploads/*
 !static/uploads/.gitkeep
 .env
 .git/
-
-# Documentation guides — useful in the repo, not needed on the server
-ARCHITECTURE_GUIDE.html
-BLOCKCHAIN_INTEGRATION_GUIDE.html
-BLOCKCHAIN_GUIDE_BANGLA.html
-PROJECT_GUIDE_BANGLA.html

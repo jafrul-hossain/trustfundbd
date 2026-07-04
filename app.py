@@ -42,7 +42,8 @@ from datetime import datetime
 from functools import wraps
 
 from flask import (
-    Flask, render_template, request, redirect, url_for, session, flash, g, abort
+    Flask, render_template, request, redirect, url_for, session, flash, g, abort,
+    send_from_directory
 )
 from markupsafe import Markup
 from werkzeug.utils import secure_filename
@@ -431,6 +432,33 @@ def post_login_redirect():
     if g.user.role == "creator":
         return redirect(url_for("creator_dashboard"))
     return redirect(url_for("donor_dashboard"))
+
+
+# ---------------------------------------------------------------------------
+# PROJECT GUIDES — the HTML documentation files written alongside this app
+# (architecture, blockchain integration, Bangla versions). Served straight
+# from disk so anyone with the link can read them; they're static reference
+# docs with no user data, so no login is required.
+# ---------------------------------------------------------------------------
+GUIDE_FILES = {
+    "architecture": "ARCHITECTURE_GUIDE.html",
+    "blockchain": "BLOCKCHAIN_INTEGRATION_GUIDE.html",
+    "project-bangla": "PROJECT_GUIDE_BANGLA.html",
+    "blockchain-bangla": "BLOCKCHAIN_GUIDE_BANGLA.html",
+}
+
+
+@app.route("/guides")
+def guides_index():
+    return render_template("guides_index.html", guides=GUIDE_FILES)
+
+
+@app.route("/guides/<slug>")
+def guide_detail(slug):
+    filename = GUIDE_FILES.get(slug)
+    if not filename:
+        abort(404)
+    return send_from_directory(BASE_DIR, filename)
 
 
 # ---------------------------------------------------------------------------
