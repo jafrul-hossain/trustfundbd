@@ -190,7 +190,7 @@ class CHP_Agency {
 		$is_pro    = CHP_License::is_pro();
 		$sites     = get_option( 'chp_agency_sites', array() );
 
-		if ( isset( $_POST['chp_sites_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_sites_nonce'] ) ), 'chp_sites_save' ) && $is_agency ) {
+		if ( $is_agency && CHP_Helpers::verify_post( 'chp_sites_save', 'chp_sites_nonce' ) ) {
 			$name = sanitize_text_field( wp_unslash( $_POST['site_name'] ?? '' ) );
 			$url  = esc_url_raw( wp_unslash( $_POST['site_url'] ?? '' ) );
 			if ( $name && $url ) {

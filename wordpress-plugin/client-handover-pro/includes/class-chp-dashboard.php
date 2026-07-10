@@ -9,7 +9,68 @@ if ( ! defined( 'ABSPATH' ) ) {
 class CHP_Dashboard {
 
 	public function __construct() {
-		// Nothing to hook yet; pages are rendered on demand.
+		add_action( 'wp_dashboard_setup', array( $this, 'register_dashboard_widget' ) );
+		add_filter( 'debug_information', array( $this, 'add_site_health_info' ) );
+	}
+
+	public function register_dashboard_widget() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		wp_add_dashboard_widget( 'chp_health_widget', __( 'Website Health — Client Handover Pro', 'client-handover-pro' ), array( $this, 'render_dashboard_widget' ) );
+	}
+
+	public function render_dashboard_widget() {
+		$scan = CHP_Checklist::get_last_scan();
+		$status = $scan['score'] >= 80 ? 'pass' : ( $scan['score'] >= 50 ? 'warn' : 'fail' );
+		?>
+		<div class="chp-widget">
+			<span class="chp-check-icon chp-check-icon--<?php echo esc_attr( $status ); ?>" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>
+			<strong style="font-size:20px;"><?php echo (int) $scan['score']; ?>%</strong>
+			<?php esc_html_e( 'website health', 'client-handover-pro' ); ?>
+			<p>
+				<?php
+				printf(
+					/* translators: 1: passed count, 2: total count */
+					esc_html__( '%1$d of %2$d launch checks passing.', 'client-handover-pro' ),
+					(int) $scan['passed'],
+					(int) $scan['total']
+				);
+				?>
+			</p>
+			<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=chp-dashboard' ) ); ?>"><?php esc_html_e( 'Open Client Handover Pro →', 'client-handover-pro' ); ?></a></p>
+		</div>
+		<?php
+	}
+
+	public function add_site_health_info( $info ) {
+		$scan = CHP_Checklist::get_last_scan();
+		$info['chp'] = array(
+			'label'  => __( 'Client Handover Pro', 'client-handover-pro' ),
+			'fields' => array(
+				'plan'        => array(
+					'label' => __( 'Plan', 'client-handover-pro' ),
+					'value' => ucfirst( CHP_License::tier() ),
+				),
+				'health_score' => array(
+					'label' => __( 'Website Health Score', 'client-handover-pro' ),
+					'value' => $scan['score'] . '%',
+				),
+				'checklist'   => array(
+					'label' => __( 'Launch Checklist', 'client-handover-pro' ),
+					'value' => sprintf( '%d / %d', $scan['passed'], $scan['total'] ),
+				),
+				'last_scan'   => array(
+					'label' => __( 'Last Scanned', 'client-handover-pro' ),
+					'value' => ! empty( $scan['scanned_at'] ) ? date_i18n( 'F j, Y g:i a', $scan['scanned_at'] ) : __( 'Never', 'client-handover-pro' ),
+				),
+				'client_mode' => array(
+					'label' => __( 'Client Dashboard Enabled', 'client-handover-pro' ),
+					'value' => CHP_Plugin::get_setting( 'client_mode_enabled' ) ? __( 'Yes', 'client-handover-pro' ) : __( 'No', 'client-handover-pro' ),
+				),
+			),
+		);
+		return $info;
 	}
 
 	public function render_dashboard_page() {

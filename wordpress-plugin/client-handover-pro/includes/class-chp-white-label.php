@@ -105,7 +105,7 @@ class CHP_White_Label {
 	public function render_settings_page() {
 		$settings = $this->get_wl_settings();
 
-		if ( isset( $_POST['chp_wl_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_wl_nonce'] ) ), 'chp_wl_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_wl_save', 'chp_wl_nonce' ) ) {
 			$settings['login_logo']    = esc_url_raw( wp_unslash( $_POST['login_logo'] ?? '' ) );
 			$settings['login_url']     = esc_url_raw( wp_unslash( $_POST['login_url'] ?? home_url() ) );
 			$settings['login_bg']      = sanitize_hex_color( wp_unslash( $_POST['login_bg'] ?? '' ) ) ?: '#F5F7F6';
@@ -120,7 +120,7 @@ class CHP_White_Label {
 			$main_settings['agency_email']   = sanitize_email( wp_unslash( $_POST['footer_email'] ?? $main_settings['agency_email'] ) );
 			CHP_Plugin::update_settings( $main_settings );
 
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'White label settings saved.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'White label settings saved.', 'client-handover-pro' ) );
 			$settings = $this->get_wl_settings();
 		}
 

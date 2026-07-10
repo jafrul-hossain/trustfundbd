@@ -12,7 +12,7 @@ class CHP_Client_Notes {
 	public function render_page() {
 		$notes = get_option( 'chp_client_notes', array() );
 
-		if ( isset( $_POST['chp_notes_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_notes_nonce'] ) ), 'chp_notes_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_notes_save', 'chp_notes_nonce' ) ) {
 			if ( isset( $_POST['add_note'] ) ) {
 				$title      = sanitize_text_field( wp_unslash( $_POST['title'] ?? '' ) );
 				$date       = sanitize_text_field( wp_unslash( $_POST['date'] ?? '' ) );
@@ -27,7 +27,7 @@ class CHP_Client_Notes {
 						'note'       => $note,
 					);
 					update_option( 'chp_client_notes', $notes );
-					echo '<div class="notice notice-success"><p>' . esc_html__( 'Note added.', 'client-handover-pro' ) . '</p></div>';
+					CHP_Helpers::notice( __( 'Note added.', 'client-handover-pro' ) );
 				}
 			} elseif ( isset( $_POST['delete_note'] ) ) {
 				$id    = sanitize_text_field( wp_unslash( $_POST['delete_note'] ) );
@@ -35,7 +35,7 @@ class CHP_Client_Notes {
 					return $n['id'] !== $id;
 				} ) );
 				update_option( 'chp_client_notes', $notes );
-				echo '<div class="notice notice-success"><p>' . esc_html__( 'Note removed.', 'client-handover-pro' ) . '</p></div>';
+				CHP_Helpers::notice( __( 'Note removed.', 'client-handover-pro' ) );
 			}
 		}
 

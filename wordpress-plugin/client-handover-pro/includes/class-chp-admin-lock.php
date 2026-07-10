@@ -18,6 +18,26 @@ class CHP_Admin_Lock {
 		'customize.php'      => 'Customizer',
 	);
 
+	/**
+	 * Menu-level locking alone leaves the underlying admin pages reachable
+	 * by direct URL. This maps each lockable menu to the other core pages
+	 * that expose the same capability, so hiding "Plugins" also blocks
+	 * plugin-install.php, plugin-editor.php, and the update.php actions
+	 * that install/activate/delete plugins — not just the menu link.
+	 */
+	private static $related_pages = array(
+		'plugins.php'          => array( 'plugin-install.php', 'plugin-editor.php' ),
+		'themes.php'           => array( 'theme-install.php', 'theme-editor.php' ),
+		'users.php'            => array( 'user-new.php', 'user-edit.php' ),
+		'options-general.php'  => array( 'options.php', 'options-writing.php', 'options-reading.php', 'options-discussion.php', 'options-permalink.php', 'options-media.php', 'options-privacy.php' ),
+		'tools.php'            => array( 'export.php', 'import.php', 'site-health.php' ),
+	);
+
+	private static $update_actions_by_menu = array(
+		'plugins.php' => array( 'install-plugin', 'upgrade-plugin', 'delete-plugin' ),
+		'themes.php'  => array( 'install-theme', 'upgrade-theme', 'delete-theme' ),
+	);
+
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'lock_menus' ), 999 );
 		add_action( 'admin_init', array( $this, 'block_direct_access' ) );
@@ -63,22 +83,35 @@ class CHP_Admin_Lock {
 		}
 		global $pagenow;
 		$locked = $this->locked_menus();
-		if ( in_array( $pagenow, $locked, true ) ) {
-			wp_die( esc_html__( 'This area has been locked by your website administrator.', 'client-handover-pro' ), '', array( 'response' => 403, 'back_link' => true ) );
+
+		foreach ( $locked as $menu_slug ) {
+			if ( $pagenow === $menu_slug ) {
+				$this->deny();
+			}
+			if ( ! empty( self::$related_pages[ $menu_slug ] ) && in_array( $pagenow, self::$related_pages[ $menu_slug ], true ) ) {
+				$this->deny();
+			}
+			if ( 'update.php' === $pagenow && ! empty( self::$update_actions_by_menu[ $menu_slug ] ) ) {
+				$action = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '';
+				if ( in_array( $action, self::$update_actions_by_menu[ $menu_slug ], true ) ) {
+					$this->deny();
+				}
+			}
 		}
-		if ( 'customize.php' === $pagenow && in_array( 'customize.php', $locked, true ) ) {
-			wp_die( esc_html__( 'The Customizer has been locked by your website administrator.', 'client-handover-pro' ), '', array( 'response' => 403, 'back_link' => true ) );
-		}
+	}
+
+	private function deny() {
+		wp_die( esc_html__( 'This area has been locked by your website administrator.', 'client-handover-pro' ), '', array( 'response' => 403, 'back_link' => true ) );
 	}
 
 	public function render_settings_page() {
 		$settings = CHP_Plugin::get_settings();
 
-		if ( isset( $_POST['chp_lock_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_lock_nonce'] ) ), 'chp_lock_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_lock_save', 'chp_lock_nonce' ) ) {
 			$settings['admin_lock_roles'] = isset( $_POST['admin_lock_roles'] ) ? array_map( 'sanitize_key', wp_unslash( $_POST['admin_lock_roles'] ) ) : array();
 			$settings['admin_lock_menus'] = isset( $_POST['admin_lock_menus'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['admin_lock_menus'] ) ) : array();
 			CHP_Plugin::update_settings( $settings );
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Admin Lock settings saved.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'Admin Lock settings saved.', 'client-handover-pro' ) );
 			$settings = CHP_Plugin::get_settings();
 		}
 

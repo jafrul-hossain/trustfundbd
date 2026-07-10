@@ -32,7 +32,9 @@ class CHP_Plugin {
 
 	private function load_dependencies() {
 		$files = array(
+			'includes/class-chp-helpers.php',
 			'includes/class-chp-license.php',
+			'includes/class-chp-integrations.php',
 			'includes/class-chp-checklist.php',
 			'includes/class-chp-dashboard.php',
 			'includes/class-chp-client-mode.php',
@@ -49,6 +51,7 @@ class CHP_Plugin {
 			'includes/class-chp-agency.php',
 			'includes/class-chp-ajax.php',
 			'includes/class-chp-settings.php',
+			'includes/class-chp-rest.php',
 		);
 
 		foreach ( $files as $file ) {
@@ -72,36 +75,51 @@ class CHP_Plugin {
 		$this->modules['agency']      = new CHP_Agency();
 		$this->modules['ajax']        = new CHP_Ajax();
 		$this->modules['settings']    = new CHP_Settings();
+		$this->modules['rest']        = new CHP_Rest();
+	}
+
+	/**
+	 * slug => [ label, module key, render method ]. Adding a new admin
+	 * screen only means adding one row here.
+	 */
+	private function submenu_definitions() {
+		return array(
+			'chp-dashboard'       => array( __( 'Dashboard', 'client-handover-pro' ), 'dashboard', 'render_dashboard_page' ),
+			'chp-checklist'       => array( __( 'Launch Checklist', 'client-handover-pro' ), 'dashboard', 'render_checklist_page' ),
+			'chp-client-mode'     => array( __( 'Client Dashboard', 'client-handover-pro' ), 'client_mode', 'render_settings_page' ),
+			'chp-white-label'     => array( __( 'White Label', 'client-handover-pro' ), 'white_label', 'render_settings_page' ),
+			'chp-admin-lock'      => array( __( 'Admin Lock', 'client-handover-pro' ), 'admin_lock', 'render_settings_page' ),
+			'chp-tutorials'       => array( __( 'Tutorial Center', 'client-handover-pro' ), 'tutorials', 'render_admin_page' ),
+			'chp-maintenance'     => array( __( 'Maintenance Mode', 'client-handover-pro' ), 'maintenance', 'render_settings_page' ),
+			'chp-cleanup'         => array( __( 'Site Cleanup', 'client-handover-pro' ), 'cleanup', 'render_page' ),
+			'chp-plugin-cleanup'  => array( __( 'Plugin Cleanup', 'client-handover-pro' ), 'plugins', 'render_page' ),
+			'chp-brand-assets'    => array( __( 'Brand Assets', 'client-handover-pro' ), 'brand', 'render_page' ),
+			'chp-vault'           => array( __( 'Credentials Vault', 'client-handover-pro' ), 'vault', 'render_page' ),
+			'chp-notes'           => array( __( 'Client Notes', 'client-handover-pro' ), 'notes', 'render_page' ),
+			'chp-handover'        => array( __( 'Handover & Reports', 'client-handover-pro' ), 'handover', 'render_page' ),
+			'chp-agency'          => array( __( 'Agency Tools', 'client-handover-pro' ), 'agency', 'render_page' ),
+			'chp-settings'        => array( __( 'Settings & License', 'client-handover-pro' ), 'settings', 'render_page' ),
+		);
 	}
 
 	public function register_admin_menu() {
 		$capability = 'manage_options';
+		$definitions = $this->submenu_definitions();
+		list( , $root_module, $root_method ) = $definitions['chp-dashboard'];
 
 		add_menu_page(
 			__( 'Client Handover Pro', 'client-handover-pro' ),
 			__( 'Handover Pro', 'client-handover-pro' ),
 			$capability,
 			'chp-dashboard',
-			array( $this->modules['dashboard'], 'render_dashboard_page' ),
+			array( $this->modules[ $root_module ], $root_method ),
 			'dashicons-yes-alt',
 			2
 		);
 
-		add_submenu_page( 'chp-dashboard', __( 'Dashboard', 'client-handover-pro' ), __( 'Dashboard', 'client-handover-pro' ), $capability, 'chp-dashboard', array( $this->modules['dashboard'], 'render_dashboard_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Launch Checklist', 'client-handover-pro' ), __( 'Launch Checklist', 'client-handover-pro' ), $capability, 'chp-checklist', array( $this->modules['dashboard'], 'render_checklist_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Client Dashboard', 'client-handover-pro' ), __( 'Client Dashboard', 'client-handover-pro' ), $capability, 'chp-client-mode', array( $this->modules['client_mode'], 'render_settings_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'White Label', 'client-handover-pro' ), __( 'White Label', 'client-handover-pro' ), $capability, 'chp-white-label', array( $this->modules['white_label'], 'render_settings_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Admin Lock', 'client-handover-pro' ), __( 'Admin Lock', 'client-handover-pro' ), $capability, 'chp-admin-lock', array( $this->modules['admin_lock'], 'render_settings_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Tutorial Center', 'client-handover-pro' ), __( 'Tutorial Center', 'client-handover-pro' ), $capability, 'chp-tutorials', array( $this->modules['tutorials'], 'render_admin_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Maintenance Mode', 'client-handover-pro' ), __( 'Maintenance Mode', 'client-handover-pro' ), $capability, 'chp-maintenance', array( $this->modules['maintenance'], 'render_settings_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Site Cleanup', 'client-handover-pro' ), __( 'Site Cleanup', 'client-handover-pro' ), $capability, 'chp-cleanup', array( $this->modules['cleanup'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Plugin Cleanup', 'client-handover-pro' ), __( 'Plugin Cleanup', 'client-handover-pro' ), $capability, 'chp-plugin-cleanup', array( $this->modules['plugins'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Brand Assets', 'client-handover-pro' ), __( 'Brand Assets', 'client-handover-pro' ), $capability, 'chp-brand-assets', array( $this->modules['brand'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Credentials Vault', 'client-handover-pro' ), __( 'Credentials Vault', 'client-handover-pro' ), $capability, 'chp-vault', array( $this->modules['vault'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Client Notes', 'client-handover-pro' ), __( 'Client Notes', 'client-handover-pro' ), $capability, 'chp-notes', array( $this->modules['notes'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Handover & Reports', 'client-handover-pro' ), __( 'Handover & Reports', 'client-handover-pro' ), $capability, 'chp-handover', array( $this->modules['handover'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Agency Tools', 'client-handover-pro' ), __( 'Agency Tools', 'client-handover-pro' ), $capability, 'chp-agency', array( $this->modules['agency'], 'render_page' ) );
-		add_submenu_page( 'chp-dashboard', __( 'Settings & License', 'client-handover-pro' ), __( 'Settings & License', 'client-handover-pro' ), $capability, 'chp-settings', array( $this->modules['settings'], 'render_page' ) );
+		foreach ( $definitions as $slug => list( $label, $module, $method ) ) {
+			add_submenu_page( 'chp-dashboard', $label, $label, $capability, $slug, array( $this->modules[ $module ], $method ) );
+		}
 	}
 
 	public function enqueue_admin_assets( $hook ) {

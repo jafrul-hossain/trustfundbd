@@ -74,7 +74,7 @@ class CHP_Maintenance {
 	public function render_settings_page() {
 		$settings = CHP_Plugin::get_settings();
 
-		if ( isset( $_POST['chp_maint_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_maint_nonce'] ) ), 'chp_maint_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_maint_save', 'chp_maint_nonce' ) ) {
 			$was_enabled = ! empty( $settings['maintenance_enabled'] );
 			$settings['maintenance_enabled']  = ! empty( $_POST['maintenance_enabled'] );
 			$settings['maintenance_mode']     = isset( $_POST['maintenance_mode'] ) ? sanitize_key( wp_unslash( $_POST['maintenance_mode'] ) ) : 'coming_soon';
@@ -86,7 +86,7 @@ class CHP_Maintenance {
 				CHP_Agency::log_event( $settings['maintenance_enabled'] ? __( 'Maintenance mode enabled', 'client-handover-pro' ) : __( 'Maintenance mode disabled', 'client-handover-pro' ) );
 			}
 
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Maintenance mode settings saved.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'Maintenance mode settings saved.', 'client-handover-pro' ) );
 		}
 		?>
 		<div class="wrap chp-wrap">

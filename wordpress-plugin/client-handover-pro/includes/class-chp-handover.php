@@ -76,7 +76,7 @@ class CHP_Handover {
 		$approval = get_option( 'chp_client_approval', array( 'status' => 'pending' ) );
 		$is_pro   = CHP_License::is_pro();
 
-		if ( isset( $_POST['chp_approval_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_approval_nonce'] ) ), 'chp_approval_save' ) && $is_pro ) {
+		if ( $is_pro && CHP_Helpers::verify_post( 'chp_approval_save', 'chp_approval_nonce' ) ) {
 			$status  = isset( $_POST['approval_status'] ) ? sanitize_key( wp_unslash( $_POST['approval_status'] ) ) : 'pending';
 			$comment = sanitize_textarea_field( wp_unslash( $_POST['approval_comment'] ?? '' ) );
 			$approval = array(
@@ -86,7 +86,7 @@ class CHP_Handover {
 				'timestamp' => time(),
 			);
 			update_option( 'chp_client_approval', $approval );
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Approval status updated.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'Approval status updated.', 'client-handover-pro' ) );
 		}
 
 		?>

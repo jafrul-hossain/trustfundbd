@@ -13,7 +13,7 @@ class CHP_Settings {
 		$settings = CHP_Plugin::get_settings();
 		$notice   = '';
 
-		if ( isset( $_POST['chp_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_settings_nonce'] ) ), 'chp_settings_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_settings_save', 'chp_settings_nonce' ) ) {
 			if ( isset( $_POST['activate_license'] ) ) {
 				$key    = sanitize_text_field( wp_unslash( $_POST['license_key'] ?? '' ) );
 				$tier   = isset( $_POST['license_tier'] ) ? sanitize_key( wp_unslash( $_POST['license_tier'] ) ) : CHP_License::TIER_PRO;

@@ -121,7 +121,7 @@ class CHP_Client_Mode {
 		);
 		$actions[] = array(
 			'label' => __( 'Contact Messages', 'client-handover-pro' ),
-			'url'   => $this->contact_messages_url(),
+			'url'   => CHP_Integrations::contact_messages_url(),
 			'icon'  => 'dashicons-email',
 		);
 		$actions[] = array(
@@ -160,27 +160,15 @@ class CHP_Client_Mode {
 		<?php
 	}
 
-	private function contact_messages_url() {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-		if ( is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) ) {
-			return admin_url( 'admin.php?page=wpcf7' );
-		}
-		if ( is_plugin_active( 'wpforms-lite/wpforms.php' ) || is_plugin_active( 'wpforms/wpforms.php' ) ) {
-			return admin_url( 'admin.php?page=wpforms-entries' );
-		}
-		return admin_url( 'edit.php?post_type=page' );
-	}
 
 	public function render_settings_page() {
 		$settings = CHP_Plugin::get_settings();
 
-		if ( isset( $_POST['chp_client_mode_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_client_mode_nonce'] ) ), 'chp_client_mode_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_client_mode_save', 'chp_client_mode_nonce' ) ) {
 			$settings['client_mode_enabled'] = ! empty( $_POST['client_mode_enabled'] );
 			$settings['client_role']         = isset( $_POST['client_role'] ) ? sanitize_key( wp_unslash( $_POST['client_role'] ) ) : 'editor';
 			CHP_Plugin::update_settings( $settings );
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Client Dashboard settings saved.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'Client Dashboard settings saved.', 'client-handover-pro' ) );
 		}
 
 		$roles = wp_roles()->get_names();

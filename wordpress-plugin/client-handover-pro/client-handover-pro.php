@@ -40,6 +40,21 @@ function chp_run_plugin() {
 add_action( 'plugins_loaded', 'chp_run_plugin' );
 
 /**
+ * WP-CLI commands (wp chp scan / wp chp cleanup). Loaded after the main
+ * plugin so the checklist and cleanup classes it depends on already
+ * exist, and only when WP-CLI is actually running.
+ */
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	add_action(
+		'plugins_loaded',
+		function () {
+			require_once CHP_PLUGIN_DIR . 'includes/class-chp-cli.php';
+		},
+		20
+	);
+}
+
+/**
  * Activation: seed default options and roles so the plugin is usable
  * immediately without a setup wizard.
  */

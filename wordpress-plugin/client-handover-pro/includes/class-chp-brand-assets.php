@@ -29,7 +29,7 @@ class CHP_Brand_Assets {
 	public function render_page() {
 		$assets = $this->get_assets();
 
-		if ( isset( $_POST['chp_brand_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_brand_nonce'] ) ), 'chp_brand_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_brand_save', 'chp_brand_nonce' ) ) {
 			$colors_raw = sanitize_text_field( wp_unslash( $_POST['colors'] ?? '' ) );
 			$fonts_raw  = sanitize_text_field( wp_unslash( $_POST['fonts'] ?? '' ) );
 			$social_raw = sanitize_textarea_field( wp_unslash( $_POST['social_links'] ?? '' ) );
@@ -63,7 +63,7 @@ class CHP_Brand_Assets {
 				}
 			}
 
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Brand assets saved.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'Brand assets saved.', 'client-handover-pro' ) );
 		}
 
 		$colors_value = implode( ', ', (array) $assets['colors'] );

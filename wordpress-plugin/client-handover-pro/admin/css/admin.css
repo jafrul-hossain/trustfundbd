@@ -341,3 +341,35 @@
 .chp-tutorial-list .chp-tutorial { margin-bottom: 16px; }
 .chp-tutorial__image { max-width: 100%; border-radius: 12px; margin: 12px 0; }
 .chp-tutorial__steps { padding-left: 20px; }
+
+/* Dark mode: follows the OS/browser preference for anyone viewing the
+   plugin's own screens with a dark color scheme. Redefining the custom
+   properties is enough for most of the UI since colors are var()-based;
+   the handful of hardcoded values below need explicit overrides. */
+@media (prefers-color-scheme: dark) {
+	.chp-wrap {
+		--chp-bg: #0F1712;
+		--chp-border: #223028;
+		--chp-text: #ECF4EF;
+		--chp-text-muted: #93A69C;
+		--chp-green-light: #16261E;
+	}
+
+	.chp-wrap .chp-card {
+		background: #16221C;
+	}
+
+	.chp-wrap .chp-row--upcoming {
+		background: #2A2410;
+	}
+
+	.chp-wrap input[type="text"],
+	.chp-wrap input[type="email"],
+	.chp-wrap input[type="date"],
+	.chp-wrap select,
+	.chp-wrap textarea {
+		background: #0F1712;
+		color: var(--chp-text);
+		border-color: var(--chp-border);
+	}
+}

@@ -59,6 +59,8 @@ class CHP_Checklist {
 					'file_permissions' => self::check_file_permissions(),
 					'debug_mode'     => self::check_debug_mode(),
 					'xmlrpc'         => self::check_xmlrpc(),
+					'user_enumeration' => self::check_user_enumeration(),
+					'two_factor'     => self::check_two_factor(),
 				),
 			),
 		);
@@ -159,14 +161,7 @@ class CHP_Checklist {
 	/* ----------------------------------------------------------------- Forms */
 
 	private static function check_contact_form() {
-		$has_form_plugin = self::any_plugin_active( array(
-			'contact-form-7/wp-contact-form-7.php',
-			'wpforms-lite/wpforms.php',
-			'wpforms/wpforms.php',
-			'gravityforms/gravityforms.php',
-			'formidable/formidable.php',
-			'ninja-forms/ninja-forms.php',
-		) );
+		$has_form_plugin = CHP_Integrations::any_active( CHP_Integrations::CONTACT_FORMS );
 
 		$page = self::find_page_by_keyword( 'contact' );
 		$has_shortcode = false;
@@ -195,12 +190,7 @@ class CHP_Checklist {
 	}
 
 	private static function check_smtp() {
-		$has_smtp_plugin = self::any_plugin_active( array(
-			'wp-mail-smtp/wp_mail_smtp.php',
-			'easy-wp-smtp/easy-wp-smtp.php',
-			'post-smtp/postman-smtp.php',
-			'fluent-smtp/fluent-smtp.php',
-		) );
+		$has_smtp_plugin = CHP_Integrations::any_active( CHP_Integrations::SMTP );
 		if ( $has_smtp_plugin ) {
 			return self::item( 'pass', __( 'SMTP Enabled', 'client-handover-pro' ), __( 'An SMTP plugin is active.', 'client-handover-pro' ) );
 		}
@@ -238,11 +228,7 @@ class CHP_Checklist {
 
 	private static function check_meta_description() {
 		$tagline    = get_bloginfo( 'description' );
-		$seo_active = self::any_plugin_active( array(
-			'wordpress-seo/wp-seo.php',
-			'seo-by-rank-math/rank-math.php',
-			'all-in-one-seo-pack/all_in_one_seo_pack.php',
-		) );
+		$seo_active = CHP_Integrations::any_active( CHP_Integrations::SEO );
 		if ( $seo_active || ! empty( $tagline ) ) {
 			return self::item( 'pass', __( 'Meta Description', 'client-handover-pro' ), $seo_active ? __( 'An SEO plugin manages meta descriptions.', 'client-handover-pro' ) : __( 'Tagline is set as a fallback description.', 'client-handover-pro' ) );
 		}
@@ -250,12 +236,7 @@ class CHP_Checklist {
 	}
 
 	private static function check_open_graph() {
-		$seo_active = self::any_plugin_active( array(
-			'wordpress-seo/wp-seo.php',
-			'seo-by-rank-math/rank-math.php',
-			'all-in-one-seo-pack/all_in_one_seo_pack.php',
-			'jetpack/jetpack.php',
-		) );
+		$seo_active = CHP_Integrations::any_active( array_merge( CHP_Integrations::SEO, array( 'jetpack/jetpack.php' ) ) );
 		if ( $seo_active ) {
 			return self::item( 'pass', __( 'Open Graph Tags', 'client-handover-pro' ), __( 'An SEO/social plugin is generating Open Graph tags.', 'client-handover-pro' ) );
 		}
@@ -265,14 +246,7 @@ class CHP_Checklist {
 	/* ----------------------------------------------------------- Performance */
 
 	private static function check_cache() {
-		$has_cache_plugin = self::any_plugin_active( array(
-			'wp-rocket/wp-rocket.php',
-			'wp-super-cache/wp-cache.php',
-			'w3-total-cache/w3-total-cache.php',
-			'litespeed-cache/litespeed-cache.php',
-			'wp-fastest-cache/wpFastestCache.php',
-			'sg-cachepress/sg-cachepress.php',
-		) );
+		$has_cache_plugin = CHP_Integrations::any_active( CHP_Integrations::CACHE );
 		if ( $has_cache_plugin || wp_using_ext_object_cache() ) {
 			return self::item( 'pass', __( 'Cache Enabled', 'client-handover-pro' ), __( 'A caching solution is active.', 'client-handover-pro' ) );
 		}
@@ -280,13 +254,7 @@ class CHP_Checklist {
 	}
 
 	private static function check_image_compression() {
-		$has_plugin = self::any_plugin_active( array(
-			'imagify/imagify.php',
-			'shortpixel-image-optimiser/wp-shortpixel.php',
-			'ewww-image-optimizer/ewww-image-optimizer.php',
-			'wp-smushit/wp-smush.php',
-			'optimole-wp/optimole-wp.php',
-		) );
+		$has_plugin = CHP_Integrations::any_active( CHP_Integrations::IMAGE_OPTIMIZATION );
 		if ( $has_plugin ) {
 			return self::item( 'pass', __( 'Image Compression', 'client-handover-pro' ), __( 'An image optimization plugin is active.', 'client-handover-pro' ) );
 		}
@@ -327,12 +295,7 @@ class CHP_Checklist {
 	}
 
 	private static function check_login_url() {
-		$has_hider = self::any_plugin_active( array(
-			'wps-hide-login/wps-hide-login.php',
-			'better-wp-security/better-wp-security.php',
-			'itsec/itsec.php',
-			'all-in-one-wp-security-and-firewall/wp-security.php',
-		) );
+		$has_hider = CHP_Integrations::any_active( CHP_Integrations::LOGIN_SECURITY );
 		if ( $has_hider ) {
 			return self::item( 'pass', __( 'Login URL Protected', 'client-handover-pro' ), __( 'A security plugin is protecting or hiding the login URL.', 'client-handover-pro' ) );
 		}
@@ -372,19 +335,30 @@ class CHP_Checklist {
 		return self::item( 'warn', __( 'XML-RPC Disabled', 'client-handover-pro' ), __( 'XML-RPC is enabled, which is a common brute-force target.', 'client-handover-pro' ) );
 	}
 
-	/* ---------------------------------------------------------------- Utils */
-
-	private static function any_plugin_active( array $plugins ) {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	private static function check_user_enumeration() {
+		$response = wp_remote_get(
+			rest_url( 'wp/v2/users' ),
+			array( 'timeout' => 8, 'sslverify' => false )
+		);
+		if ( is_wp_error( $response ) ) {
+			return self::item( 'warn', __( 'User Enumeration Blocked', 'client-handover-pro' ), $response->get_error_message() );
 		}
-		foreach ( $plugins as $plugin ) {
-			if ( is_plugin_active( $plugin ) ) {
-				return true;
-			}
+		$code = wp_remote_retrieve_response_code( $response );
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 === (int) $code && is_array( $body ) && ! empty( $body ) ) {
+			return self::item( 'warn', __( 'User Enumeration Blocked', 'client-handover-pro' ), __( 'The REST API publicly lists usernames at /wp-json/wp/v2/users — a common target for credential-stuffing attacks.', 'client-handover-pro' ), admin_url( 'plugin-install.php?s=disable+rest+api+user&tab=search&type=term' ) );
 		}
-		return false;
+		return self::item( 'pass', __( 'User Enumeration Blocked', 'client-handover-pro' ), __( 'The REST API users endpoint does not expose a public user list.', 'client-handover-pro' ) );
 	}
+
+	private static function check_two_factor() {
+		if ( CHP_Integrations::any_active( CHP_Integrations::TWO_FACTOR ) ) {
+			return self::item( 'pass', __( 'Two-Factor Authentication', 'client-handover-pro' ), __( 'A two-factor or firewall plugin that supports 2FA is active.', 'client-handover-pro' ) );
+		}
+		return self::item( 'warn', __( 'Two-Factor Authentication', 'client-handover-pro' ), __( 'No 2FA plugin detected. Administrator accounts rely on password alone.', 'client-handover-pro' ), admin_url( 'plugin-install.php?s=two+factor+authentication&tab=search&type=term' ) );
+	}
+
+	/* ---------------------------------------------------------------- Utils */
 
 	private static function find_page_by_keyword( $keyword ) {
 		$query = new WP_Query(

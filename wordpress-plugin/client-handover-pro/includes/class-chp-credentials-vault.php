@@ -23,32 +23,85 @@ class CHP_Credentials_Vault {
 		'api_keys'         => 'API Keys',
 	);
 
+	/**
+	 * Derives a storage key from WordPress's own auth salts. If wp-config
+	 * salts are ever regenerated, previously stored values become
+	 * unreadable — an accepted trade-off for not inventing new secret
+	 * storage. There is nothing "administrator" can do to read this key
+	 * from the database itself.
+	 */
 	private function encryption_key() {
-		$key = defined( 'AUTH_KEY' ) && AUTH_KEY ? AUTH_KEY : wp_salt( 'auth' );
+		$key = ( defined( 'AUTH_KEY' ) && AUTH_KEY ? AUTH_KEY : wp_salt( 'auth' ) )
+			. ( defined( 'AUTH_SALT' ) && AUTH_SALT ? AUTH_SALT : wp_salt( 'auth' ) );
 		return hash( 'sha256', $key, true );
 	}
 
+	private function gcm_available() {
+		return in_array( 'aes-256-gcm', openssl_get_cipher_methods(), true );
+	}
+
+	/**
+	 * Authenticated encryption (AES-256-GCM): a tampered ciphertext fails
+	 * to decrypt rather than silently returning corrupted plaintext.
+	 * Falls back to AES-256-CBC only on environments without GCM support.
+	 */
 	private function encrypt( $value ) {
 		if ( '' === $value ) {
 			return '';
 		}
-		$iv        = random_bytes( 16 );
-		$ciphertext = openssl_encrypt( $value, 'aes-256-cbc', $this->encryption_key(), OPENSSL_RAW_DATA, $iv );
-		return base64_encode( $iv . $ciphertext ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- storage encoding, not obfuscation.
+		$key = $this->encryption_key();
+
+		if ( $this->gcm_available() ) {
+			$iv   = random_bytes( 12 );
+			$tag  = '';
+			$data = openssl_encrypt( $value, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, '', 16 );
+			if ( false === $data ) {
+				return '';
+			}
+			return 'gcm:' . base64_encode( $iv . $tag . $data ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- storage encoding, not obfuscation.
+		}
+
+		$iv   = random_bytes( 16 );
+		$data = openssl_encrypt( $value, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv );
+		if ( false === $data ) {
+			return '';
+		}
+		return 'cbc:' . base64_encode( $iv . $data ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- storage encoding, not obfuscation.
 	}
 
 	private function decrypt( $value ) {
-		if ( '' === $value ) {
+		if ( '' === $value || false === strpos( $value, ':' ) ) {
 			return '';
 		}
-		$raw = base64_decode( $value ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-		if ( false === $raw || strlen( $raw ) < 17 ) {
+		list( $mode, $encoded ) = explode( ':', $value, 2 );
+		$raw = base64_decode( $encoded ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		if ( false === $raw ) {
 			return '';
 		}
-		$iv         = substr( $raw, 0, 16 );
-		$ciphertext = substr( $raw, 16 );
-		$plain      = openssl_decrypt( $ciphertext, 'aes-256-cbc', $this->encryption_key(), OPENSSL_RAW_DATA, $iv );
-		return false === $plain ? '' : $plain;
+		$key = $this->encryption_key();
+
+		if ( 'gcm' === $mode ) {
+			if ( strlen( $raw ) < 29 ) {
+				return '';
+			}
+			$iv         = substr( $raw, 0, 12 );
+			$tag        = substr( $raw, 12, 16 );
+			$ciphertext = substr( $raw, 28 );
+			$plain      = openssl_decrypt( $ciphertext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag );
+			return false === $plain ? '' : $plain;
+		}
+
+		if ( 'cbc' === $mode ) {
+			if ( strlen( $raw ) < 17 ) {
+				return '';
+			}
+			$iv         = substr( $raw, 0, 16 );
+			$ciphertext = substr( $raw, 16 );
+			$plain      = openssl_decrypt( $ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv );
+			return false === $plain ? '' : $plain;
+		}
+
+		return '';
 	}
 
 	private function get_vault() {
@@ -75,14 +128,14 @@ class CHP_Credentials_Vault {
 			return;
 		}
 
-		if ( isset( $_POST['chp_vault_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['chp_vault_nonce'] ) ), 'chp_vault_save' ) ) {
+		if ( CHP_Helpers::verify_post( 'chp_vault_save', 'chp_vault_nonce' ) ) {
 			$stored = array();
 			foreach ( self::$fields as $key => $label ) {
 				$raw            = isset( $_POST[ $key ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $key ] ) ) : '';
 				$stored[ $key ] = $this->encrypt( $raw );
 			}
 			update_option( 'chp_vault', $stored );
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Credentials saved securely.', 'client-handover-pro' ) . '</p></div>';
+			CHP_Helpers::notice( __( 'Credentials saved securely.', 'client-handover-pro' ) );
 		}
 
 		$vault = $this->get_vault();
