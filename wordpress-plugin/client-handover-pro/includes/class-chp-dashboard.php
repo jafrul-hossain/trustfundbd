@@ -94,6 +94,8 @@ class CHP_Dashboard {
 				</div>
 			</div>
 
+			<?php CHP_Onboarding::render_dashboard_tracker(); ?>
+
 			<div class="chp-grid chp-grid--hero">
 				<div class="chp-card chp-card--dark">
 					<div class="chp-card__label"><?php esc_html_e( 'Website Health', 'client-handover-pro' ); ?></div>

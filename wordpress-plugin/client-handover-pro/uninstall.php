@@ -19,6 +19,8 @@ $chp_options = array(
 	'chp_maintenance_log',
 	'chp_client_approval',
 	'chp_agency_sites',
+	'chp_show_activation_notice',
+	'chp_getting_started_dismissed',
 );
 
 foreach ( $chp_options as $option ) {

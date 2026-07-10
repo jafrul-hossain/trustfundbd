@@ -71,6 +71,18 @@ class CHP_Activator {
 			wp_schedule_event( time(), 'monthly', 'chp_monthly_report' );
 		}
 
+		// Always leave a dismissible admin notice as a fallback path to the
+		// Welcome screen (covers bulk/network activation, where a forced
+		// redirect is skipped below).
+		update_option( 'chp_show_activation_notice', true );
+
+		// Single-activation only: skip on bulk activation or network activation,
+		// where a forced redirect would either fire for every plugin in the
+		// batch or land on a site the network admin isn't currently viewing.
+		if ( ! is_network_admin() && empty( $_GET['activate-multi'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only check of the current activation request shape, not a state change.
+			set_transient( 'chp_activation_redirect', true, MINUTE_IN_SECONDS );
+		}
+
 		flush_rewrite_rules();
 	}
 

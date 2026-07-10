@@ -12,6 +12,17 @@
 
 	$( function () {
 
+		/* Auto-run the first scan when arriving from the Welcome screen's
+		   "Save & Run First Scan" button, then strip the param so a page
+		   refresh doesn't re-trigger it. */
+		if ( /[?&]chp_autorun=1/.test( window.location.search ) ) {
+			$( '#chp-run-scan' ).trigger( 'click' );
+			if ( window.history && window.history.replaceState ) {
+				var cleanUrl = window.location.href.replace( /([?&])chp_autorun=1&?/, '$1' ).replace( /[?&]$/, '' );
+				window.history.replaceState( {}, '', cleanUrl );
+			}
+		}
+
 		/* Run Scan */
 		$( document ).on( 'click', '#chp-run-scan', function () {
 			var $btn = $( this );

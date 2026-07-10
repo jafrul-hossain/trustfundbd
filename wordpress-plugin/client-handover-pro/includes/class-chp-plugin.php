@@ -52,6 +52,7 @@ class CHP_Plugin {
 			'includes/class-chp-ajax.php',
 			'includes/class-chp-settings.php',
 			'includes/class-chp-rest.php',
+			'includes/class-chp-onboarding.php',
 		);
 
 		foreach ( $files as $file ) {
@@ -76,6 +77,7 @@ class CHP_Plugin {
 		$this->modules['ajax']        = new CHP_Ajax();
 		$this->modules['settings']    = new CHP_Settings();
 		$this->modules['rest']        = new CHP_Rest();
+		$this->modules['onboarding']  = new CHP_Onboarding();
 	}
 
 	/**

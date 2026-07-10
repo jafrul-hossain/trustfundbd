@@ -100,9 +100,10 @@
 }
 
 .chp-grid--report { grid-template-columns: 1fr 1.4fr; }
+.chp-grid--welcome { grid-template-columns: 1.2fr 1fr; }
 
 @media (max-width: 960px) {
-	.chp-grid, .chp-grid--report { grid-template-columns: 1fr; }
+	.chp-grid, .chp-grid--report, .chp-grid--welcome { grid-template-columns: 1fr; }
 }
 
 .chp-card {
@@ -341,6 +342,114 @@
 .chp-tutorial-list .chp-tutorial { margin-bottom: 16px; }
 .chp-tutorial__image { max-width: 100%; border-radius: 12px; margin: 12px 0; }
 .chp-tutorial__steps { padding-left: 20px; }
+
+/* Welcome / onboarding */
+
+.chp-welcome-hero {
+	background: linear-gradient(135deg, var(--chp-green-dark), var(--chp-green));
+	color: #fff;
+	border-radius: var(--chp-radius);
+	padding: 40px 32px;
+	margin-bottom: 20px;
+}
+
+.chp-welcome-hero__eyebrow {
+	display: inline-block;
+	background: rgba(255,255,255,.15);
+	padding: 4px 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	margin-bottom: 12px;
+}
+
+.chp-welcome-hero h1 {
+	font-size: 30px;
+	margin: 0 0 8px;
+	color: #fff;
+}
+
+.chp-welcome-hero p {
+	margin: 0;
+	max-width: 560px;
+	opacity: .9;
+	font-size: 15px;
+}
+
+.chp-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	counter-reset: chp-step;
+}
+
+.chp-steps__item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--chp-border);
+}
+
+.chp-steps__item:last-child { border-bottom: none; }
+
+.chp-steps__marker {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var(--chp-border);
+	color: var(--chp-text-muted);
+	font-size: 12px;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.chp-steps__item.is-done .chp-steps__marker {
+	background: var(--chp-mint);
+	color: var(--chp-green-dark);
+}
+
+.chp-steps__item.is-done a {
+	color: var(--chp-text-muted);
+	text-decoration: line-through;
+}
+
+.chp-steps__item a {
+	color: var(--chp-text);
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.chp-steps__item a:hover { color: var(--chp-green); }
+
+.chp-steps--inline {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+}
+
+.chp-steps--inline .chp-steps__item {
+	border-bottom: none;
+	padding: 4px 0;
+	flex: 1 1 220px;
+}
+
+.chp-getting-started__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.chp-activation-notice {
+	border-left-color: var(--chp-green, #1E7F5C);
+}
 
 /* Dark mode: follows the OS/browser preference for anyone viewing the
    plugin's own screens with a dark color scheme. Redefining the custom
